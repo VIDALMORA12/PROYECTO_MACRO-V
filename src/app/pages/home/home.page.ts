@@ -19,33 +19,5 @@ export class HomePage implements OnInit {
   ngOnInit() {
   }
   ionViewDidEnter() {
-    this.createPieChart();
   }
-
-  createPieChart() {
-    this.pieChart = new Chart(this.pieCanvas.nativeElement, {
-      type: 'pie',
-      data: {
-        labels: ['Ciclo 1', 'Ciclo 2', 'Ciclo 3', 'Ciclo 4', 'Ciclo 5', 'Ciclo 6', 
-                 'Ciclo 7', 'Ciclo 8', 'Ciclo 9', 'Ciclo 10', 'Ciclo 11', 'Ciclo 12'],
-        datasets: [{
-          label: 'Ciclos',
-          data: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Valores iguales para que se vea simétrico
-          backgroundColor: [
-            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
-            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
-          ],
-          hoverOffset: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'bottom' },
-          title: { display: true, text: 'CICLOS', font: { size: 20 } }
-        }
-      }
-    });
-  }
-
 }
