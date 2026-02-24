@@ -17,94 +17,15 @@ import {
   // Tipo de retorno para consultas que devuelven filas (SELECT).
   capSQLiteValues,
 } from '@capacitor-community/sqlite';
-
+import { Ciclo } from '../models/ciclo';
+import { Lectura } from '../models/lectura';
+import { Usuario } from '../models/usuario';
+import { MacroMedidor } from '../models/macro-medidor';
+import { Perdidas } from '../models/perdidas';
 // Define los tipos de valor permitidos al enviar parámetros SQL.
 type SqlValue = string | number | null;
 
-// Define la forma de un registro de ciclos leído desde la base de datos.
-export interface Ciclo {
-  // Identificador único del ciclo.
-  id: number;
-  // Nombre del ciclo.
-  name: string;
-  // Descripción opcional del ciclo.
-  description: string | null;
-  // Periodicidad del ciclo (por ejemplo: 'Diario', 'Semanal', etc.).
-  periodicity: string | null;
 
-}
-
-// Define la forma de un registro de lecturas leído desde la base de datos.
-export interface Lecturas {
-  // Identificador único de lecturas.
-  id_lectura: number;
-  //nombre del ciclo al que pertenece la lectura.
-  name: string;
-  // Valor numérico de la lectura.
-  valor_lectura: number;
-  // Fecha y hora de la lectura en formato ISO.
-  fecha_lectura: string;
-  // Estado de novedad asociado a la lectura (por ejemplo: 'Normal', 'Alerta', etc.).
-  novedad_estado: string;
-  // Identificador del macro foto relacionado con esta lectura.
-  id_macro_foto: number;
-  // Identificador del usuario que registró la lectura.
-  id_usuario: string;
-
-}
-
-// Define la forma de ver como esta el macro_medidor leído desde la base de datos.
-export interface Macro_Medidor {
-  // Identificador único del macro_medidor.
-  id_macro_medidor: number;
-  // Identificador del ciclo al que pertenece el macro_medidor.
-  id_ciclo: number;
-  // Nombre del macro_medidor.
-  nombre: string;
-  // Dirección del macro_medidor.
-  direccion: string;
-  // Coordenadas SIG del macro_medidor.
-  sig_coord: string;
-  // Tipo de instalación del macro_medidor (por ejemplo: 'Residencial', 'Comercial', etc.).
-  tipo_instalacion: string;
-  // que lectura lleva el macro_medidor por ciclo .
-  valor_lectura: number;
-}
-
-// Define la estructura de datos necesaria para crear una receta nueva.
-export interface Perdidas {
-  // Nombre del ciclo de la perdida y del macro medidor .
-  
-  name: string;
-  // Subtítulo opcional.
-  subtitle?: string | null;
-  // Descripción opcional.
-  description?: string | null;
-  // Instrucciones opcionales.
-  instructions?: string | null;
-  // Tiempo requerido opcional en minutos.
-  timeRequired?: number | null;
-}
-
-// Define la estructura de datos necesaria para actualizar una receta existente.
-export interface UpdateRecipeInput extends CreateRecipeInput {
-  // Identificador obligatorio de la receta a actualizar.
-  id: number;
-}
-
-// Define la forma de un registro de usuario leído desde la base de datos.
-export interface UsuarioRecord {
-  // Identificador único del usuario.
-  id: number;
-  // Nombre completo del usuario.
-  nombre: string;
-  // Rol del usuario dentro de la aplicación.
-  rol: string;
-  // Nombre de usuario para autenticación o identificación.
-  usuario: string;
-  // Contraseña almacenada en texto (idealmente debería almacenarse hasheada).
-  contrasena: string;
-}
 
 // Declara este servicio como inyectable y disponible globalmente en toda la aplicación.
 @Injectable({
@@ -317,39 +238,59 @@ export class Database {
   }
 
   // Obtiene todas las categorías ordenadas alfabéticamente.
-  async getCategories(): Promise<CategoryRecord[]> {
+  async getCiclos(): Promise<Ciclo[]> {
     // Ejecuta SELECT de categorías solicitando columnas relevantes.
     const result = await this.query(
       // Consulta SQL para leer categorías.
       'SELECT id, name, description FROM categories ORDER BY name ASC;',
     );
     // Retorna el arreglo de filas o un arreglo vacío si no hay resultados.
-    return (result.values ?? []) as CategoryRecord[];
+    return (result.values ?? []) as Ciclo[];
   }
 
   // Obtiene todos los ingredientes ordenados alfabéticamente.
-  async getIngredients(): Promise<IngredientRecord[]> {
+  async getLecturas(): Promise<Lectura[]> {
     // Ejecuta SELECT sobre la tabla de ingredientes.
     const result = await this.query('SELECT id, name FROM ingredients ORDER BY name ASC;');
     // Convierte y retorna los datos tipados.
-    return (result.values ?? []) as IngredientRecord[];
+    return (result.values ?? []) as Lectura[];
   }
 
   // Obtiene todas las recetas ordenadas alfabéticamente por nombre.
-  async getRecipes(): Promise<RecipeRecord[]> {
+  async getPerdidas(): Promise<Perdidas[]> {
     // Ejecuta SELECT incluyendo alias para mapear time_required a timeRequired.
     const result = await this.query(
       // Consulta SQL para recuperar recetas.
       'SELECT id, name, subtitle, description, instructions, time_required AS timeRequired FROM recipes ORDER BY id DESC;',
     );
     // Retorna arreglo tipado de recetas.
-    return (result.values ?? []) as RecipeRecord[];
+    return (result.values ?? []) as Perdidas[];
+  }
+  // Obtiene todas las recetas ordenadas alfabéticamente por nombre.
+  async getMacromedidor(): Promise<MacroMedidor[]> {
+    // Ejecuta SELECT incluyendo alias para mapear time_required a timeRequired.
+    const result = await this.query(
+      // Consulta SQL para recuperar recetas.
+      'SELECT id, name, subtitle, description, instructions, time_required AS timeRequired FROM recipes ORDER BY id DESC;',
+    );
+    // Retorna arreglo tipado de recetas.
+    return (result.values ?? []) as MacroMedidor[];
+  }
+  // Obtiene todas las recetas ordenadas alfabéticamente por nombre.
+  async getusuario(): Promise<Usuario[]> {
+    // Ejecuta SELECT incluyendo alias para mapear time_required a timeRequired.
+    const result = await this.query(
+      // Consulta SQL para recuperar recetas.
+      'SELECT id, name, subtitle, description, instructions, time_required AS timeRequired FROM recipes ORDER BY id DESC;',
+    );
+    // Retorna arreglo tipado de recetas.
+    return (result.values ?? []) as Usuario[];
   }
 
-  // Crea una receta nueva en la base de datos y retorna su id generado.
-  async createRecipe(input: CreateRecipeInput): Promise<number> {
+  // Crea un macromedidor nueva en la base de datos y retorna su id generado.
+  async createMacromedidor(input: MacroMedidor): Promise<number> {
     // Normaliza el nombre y valida que exista contenido mínimo.
-    const name = (input.name ?? '').trim();
+    const name = (input.getNombre ?? '');
 
     // Si el nombre es vacío, lanza error de validación.
     if (!name) {
@@ -358,13 +299,14 @@ export class Database {
 
     // Inserta la receta usando parámetros para evitar interpolación manual.
     const result = await this.run(
-      'INSERT INTO recipes (name, subtitle, description, instructions, time_required) VALUES (?, ?, ?, ?, ?);',
+      'INSERT INTO macromedidores (id_macro_medidor, subtitle, description, instructions, time_required) VALUES (?, ?, ?, ?, ?);',
       [
-        name,
-        input.subtitle?.trim() || null,
-        input.description?.trim() || null,
-        input.instructions?.trim() || null,
-        input.timeRequired ?? null,
+        input.getSigCoord() || null,
+        input.getIdMacroMedidor() || null,
+        input.getIdCiclo() || null,
+        input.getNombre() || null,
+        input.getDireccion() || null,
+        input.getTipoInstalacion() || null,
       ],
     );
 
@@ -372,31 +314,32 @@ export class Database {
     return Number(result.changes?.lastId ?? 0);
   }
 
-  // Actualiza una receta existente en la base de datos y retorna true si hubo cambios.
-  async updateRecipe(input: UpdateRecipeInput): Promise<boolean> {
-    // Valida el id de receta a modificar.
-    if (!Number.isInteger(input.id) || input.id <= 0) {
-      throw new Error('El id de la receta es inválido');
+  // Actualiza un macromedidor existente en la base de datos y retorna true si hubo cambios.
+  async updateMacromedidor(input: MacroMedidor): Promise<boolean> {
+    // Valida el id de macromedidor a modificar.
+    if (!Number.isInteger(input.getIdMacroMedidor()) || input.getIdMacroMedidor() <= 0) {
+      throw new Error('El id del macromedidor es inválido');
     }
 
     // Normaliza el nombre y valida que exista contenido mínimo.
-    const name = (input.name ?? '').trim();
+    const name = (input.getNombre() ?? '').trim();
 
     // Si el nombre es vacío, lanza error de validación.
     if (!name) {
-      throw new Error('El nombre de la receta es obligatorio');
+      throw new Error('El nombre del macromedidor es obligatorio');
     }
 
     // Ejecuta actualización parametrizada de los campos editables.
     const result = await this.run(
-      'UPDATE recipes SET name = ?, subtitle = ?, description = ?, instructions = ?, time_required = ? WHERE id = ?;',
+      'UPDATE macromedidores SET nombre = ?, subtitle = ?, description = ?, instructions = ?, time_required = ? WHERE id_macro_medidor = ?;',
       [
         name,
-        input.subtitle?.trim() || null,
-        input.description?.trim() || null,
-        input.instructions?.trim() || null,
-        input.timeRequired ?? null,
-        input.id,
+        input.getSigCoord() || null,
+        input.getIdCiclo() || null,
+        input.getNombre() || null,
+        input.getDireccion() || null,
+        input.getTipoInstalacion() || null,
+        input.getIdMacroMedidor(),
       ],
     );
 
@@ -404,31 +347,21 @@ export class Database {
     return Number(result.changes?.changes ?? 0) > 0;
   }
 
-  // Elimina una receta por id y retorna true si se eliminó al menos un registro.
-  async deleteRecipe(id: number): Promise<boolean> {
+  // Elimina un macro medidor por id y retorna true si se eliminó al menos un registro.
+  async deleteMacromedidor(id: number): Promise<boolean> {
     // Valida el identificador recibido.
     if (!Number.isInteger(id) || id <= 0) {
-      throw new Error('El id de la receta es inválido');
+      throw new Error('El id del macromedidor es inválido');
     }
 
-    // Ejecuta eliminación parametrizada de la receta.
-    const result = await this.run('DELETE FROM recipes WHERE id = ?;', [id]);
+    // Ejecuta eliminación parametrizada del macromedidor.
+    const result = await this.run('DELETE FROM macromedidores WHERE id_macro_medidor = ?;', [id]);
 
     // Retorna true cuando se elimina al menos una fila.
     return Number(result.changes?.changes ?? 0) > 0;
   }
 
-  // Obtiene todos los usuarios ordenados por nombre.
-  async getUsuarios(): Promise<UsuarioRecord[]> {
-    // Ejecuta SELECT de la tabla usuarios con sus campos principales.
-    const result = await this.query(
-      // Consulta SQL para recuperar usuarios.
-      'SELECT id, nombre, rol, usuario, contrasena FROM usuarios ORDER BY nombre ASC;',
-    );
-    // Retorna arreglo tipado de usuarios.
-    return (result.values ?? []) as UsuarioRecord[];
-  }
-
+  
   // Devuelve una conexión abierta y válida, inicializando la base si es necesario.
   private async getOpenedConnection(): Promise<SQLiteDBConnection> {
     // Si no hay conexión, intenta inicializarla.
