@@ -9,7 +9,7 @@ import * as echarts from 'echarts';
   templateUrl: './ciclo.page.html',
   styleUrls: ['./ciclo.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
+  imports: [ IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
 })
 export class CicloPage implements OnInit {
 
