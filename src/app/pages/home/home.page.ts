@@ -9,7 +9,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { addCircleOutline, waterOutline, locationOutline, saveOutline } from 'ionicons/icons';
-import { Database, MacroMedidorRecord, CicloRecord } from '../../services/database';
+import { Database } from '../../services/database';
 
 @Component({
   selector: 'app-home',
@@ -17,14 +17,14 @@ import { Database, MacroMedidorRecord, CicloRecord } from '../../services/databa
   standalone: true,
   imports: [
     CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, 
-    IonContent, IonButton, IonIcon, IonList, IonItem, IonLabel, 
+    IonContent, IonButton, IonIcon, IonItem, IonLabel, 
     IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonBadge, 
     IonListHeader, IonInput, IonSelect, IonSelectOption
   ]
 })
 export class HomePage implements OnInit {
-  listaMedidores: MacroMedidorRecord[] = [];
-  listaCiclos: CicloRecord[] = [];
+  listaMedidores: any[] = [];
+  listaCiclos: any[] = [];
 
   // Objeto para vincular al formulario
   nuevoMedidor = {
@@ -45,14 +45,14 @@ export class HomePage implements OnInit {
   }
 
   async cargarDatos() {
-    this.listaMedidores = await this.db.getMacroMedidores();
+    this.listaMedidores = await this.db.getMacromedidor();
     this.listaCiclos = await this.db.getCiclos();
   }
 
   async guardarMedidor() {
     if (this.nuevoMedidor.nombre.trim() === '') return;
 
-    await this.db.createMacroMedidor(this.nuevoMedidor);
+    await this.db.createMacromedidor(this.nuevoMedidor as any);
     
     // Limpiar formulario y recargar lista
     this.nuevoMedidor = {
