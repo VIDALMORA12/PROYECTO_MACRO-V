@@ -28,6 +28,10 @@
     "@capacitor/keyboard": "8.0.0",
     "@capacitor/status-bar": "8.0.0",
     "@ionic/angular": "^8.0.0",
+<<<<<<< HEAD
+=======
+    "echarts": "^6.0.0",
+>>>>>>> origin/main
     "chart.js": "^4.5.1",
     "ionicons": "^7.0.0",
     "jeep-sqlite": "^2.8.0",
@@ -42,7 +46,11 @@
     "@angular-eslint/eslint-plugin-template": "^20.0.0",
     "@angular-eslint/schematics": "^20.0.0",
     "@angular-eslint/template-parser": "^20.0.0",
+<<<<<<< HEAD
     "@angular/cli": "20.3.16",
+=======
+    "@angular/cli": "^20.0.0",
+>>>>>>> origin/main
     "@angular/compiler-cli": "^20.0.0",
     "@angular/language-service": "^20.0.0",
     "@capacitor/cli": "8.0.2",

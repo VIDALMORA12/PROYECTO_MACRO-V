@@ -1,6 +1,10 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>home</ion-title>
+<<<<<<< HEAD
+=======
+    
+>>>>>>> origin/main
   </ion-toolbar>
 </ion-header>
 
@@ -9,9 +13,12 @@
     <img src="assets/icon/logo-mv.png" alt="Logo MV" class="logo-gigante">
   </div>
   <ion-header [translucent]="true">
+<<<<<<< HEAD
   <ion-toolbar>
     <ion-title>Gráfico de Ciclos</ion-title>
   </ion-toolbar>
+=======
+>>>>>>> origin/main
 </ion-header>
 
 <ion-content class="ion-padding">
@@ -26,3 +33,77 @@
     </ion-toolbar>
   </ion-header>
 </ion-content>
+<<<<<<< HEAD
+=======
+
+
+
+
+
+
+
+
+
+<ion-card color="light">
+  <ion-card-header>
+    <ion-card-title>
+      <ion-icon name="water-outline"></ion-icon> Registro de Macro Medidor
+    </ion-card-title>
+  </ion-card-header>
+
+  <ion-card-content>
+    <ion-item>
+      <ion-label position="stacked">Nombre del Medidor</ion-label>
+      <ion-input [(ngModel)]="nuevoMedidor.nombre" placeholder="Ej: Sector Centro"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Dirección Física</ion-label>
+      <ion-input [(ngModel)]="nuevoMedidor.direccion" placeholder="Calle/Carrera..."></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Coordenadas (SIG)</ion-label>
+      <ion-input [(ngModel)]="nuevoMedidor.sig_coord" placeholder="Lat, Long"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Tipo de Instalación</ion-label>
+      <ion-select [(ngModel)]="nuevoMedidor.tipo_instalacion" placeholder="Seleccione tipo">
+        <ion-select-option value="Industrial">Industrial</ion-select-option>
+        <ion-select-option value="Residencial">Residencial</ion-select-option>
+        <ion-select-option value="Comercial">Comercial</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Ciclo de Facturación</ion-label>
+      <ion-select [(ngModel)]="nuevoMedidor.id_ciclo">
+        <ion-select-option *ngFor="let c of listaCiclos" [value]="c.id_ciclo">
+          {{ c.descripcion }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-button expand="block" color="primary" class="ion-margin-top" (click)="guardarMedidor()">
+      <ion-icon name="save-outline" slot="start"></ion-icon>
+      Guardar en Base de Datos
+    </ion-button>
+  </ion-card-content>
+</ion-card>
+
+<ion-list-header class="ion-margin-top">
+  <ion-label>Medidores en el Sistema</ion-label>
+</ion-list-header>
+
+<ion-card *ngFor="let m of listaMedidores" mode="ios">
+  <ion-item lines="none">
+    <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
+    <ion-label>
+      <h2>{{ m.nombre }}</h2>
+      <p>{{ m.direccion }}</p>
+    </ion-label>
+    <ion-badge slot="end" color="tertiary">Ciclo: {{ m.id_ciclo }}</ion-badge>
+  </ion-item>
+</ion-card>
+>>>>>>> origin/main
