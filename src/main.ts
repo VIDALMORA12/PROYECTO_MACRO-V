@@ -1,18 +1,17 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { RouteReuseStrategy, provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
-<<<<<<< HEAD
-=======
+
 import { Capacitor } from '@capacitor/core';
 import { CapacitorSQLite } from '@capacitor-community/sqlite';
 import { defineCustomElements as defineJeepSqliteCustomElements } from 'jeep-sqlite/loader';
 
->>>>>>> origin/main
+
 
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 
-<<<<<<< HEAD
+
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
@@ -20,7 +19,7 @@ bootstrapApplication(AppComponent, {
     provideRouter(routes, withPreloading(PreloadAllModules)),
   ],
 });
-=======
+
 const initializeWebSQLite = async (): Promise<void> => {
   if (Capacitor.getPlatform() !== 'web') {
     return;
@@ -72,4 +71,4 @@ const bootstrap = async (): Promise<void> => {
 bootstrap().catch((error: unknown) => {
   console.error('Error al inicializar la aplicación', error);
 });
->>>>>>> origin/main
+
