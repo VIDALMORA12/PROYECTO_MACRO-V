@@ -14,17 +14,13 @@ import { addIcons } from 'ionicons';
 import { addCircleOutline, waterOutline, locationOutline, saveOutline } from 'ionicons/icons';
 import { Database } from '../../services/database';
 
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
   standalone: true,
-
   imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule,CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, 
-
-  imports: [
-    CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, 
-
     IonContent, IonButton, IonIcon, IonItem, IonLabel, 
     IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonBadge, 
     IonListHeader, IonInput, IonSelect, IonSelectOption
@@ -32,17 +28,10 @@ import { Database } from '../../services/database';
     
 })
 export class HomePage implements OnInit {
-}
   @ViewChild('pieCanvas') private pieCanvas!: ElementRef;
   pieChart: any;
   listaMedidores: any[] = [];
   listaCiclos: any[] = [];
-
-  listaMedidores: any[] = [];
-  listaCiclos: any[] = [];
-
-  // Objeto para vincular al formulario
-
   nuevoMedidor = {
     nombre: '',
     direccion: '',

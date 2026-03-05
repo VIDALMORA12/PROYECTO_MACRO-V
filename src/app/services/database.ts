@@ -49,32 +49,36 @@ export class Database {
 
   // Lista base de categorías que se insertan automáticamente si la tabla está vacía.
   readonly defaultCategories: ReadonlyArray<string> = [
-    // Categoría de entradas.
-    'Appetizers',
-    // Categoría de platos principales.
-    'Main Courses',
-    // Categoría de postres.
-    'Desserts',
-    // Categoría de bebidas.
-    'Beverages',
-    // Categoría de ensaladas.
-    'Salads',
-    // Categoría de sopas.
-    'Soups',
-    // Categoría de snacks.
-    'Snacks',
-    // Categoría de desayunos.
-    'Breakfast',
-    // Categoría de recetas vegetarianas.
-    'Vegetarian',
-    // Categoría de recetas veganas.
-    'Vegan',
-    // Categoría de recetas sin gluten.
-    'Gluten-Free',
-    // Categoría de recetas keto.
-    'Keto',
-    // Categoría de recetas paleo.
-    'Paleo',
+    // LECTURAS CICLO1.
+    'Ciclo1',
+    // LECTURAS CICLO2.
+    'Ciclo2',
+    // LECTURAS CICLO3.
+    'Ciclo3',
+    // LECTURAS CICLO4.
+    'Ciclo4',
+    // LECTURAS CICLO5.
+    'Ciclo5',
+    // LECTURAS CICLO6.
+    'Ciclo6',
+    // LECTURAS CICLO7.
+    'Ciclo7',
+    // LECTURAS CICLO8.
+    'Ciclo8',
+    // LECTURAS CICLO9.
+    'Ciclo9',
+    // LECTURAS CICLO10.
+    'Ciclo10',
+    // LECTURAS CICLO11.
+    'Ciclo11',
+    // CICLO DE LECTURAS RURAL 12.
+    'Ciclo12',
+    //LECTURAS RURALES.
+    'Zona1',
+    //LECTURAS RURALES.
+    'Zona2',
+    //LECTURAS RURALES.
+    'Zona3',
   ];
 
   // Inicializa la base de datos, abre conexión, crea esquema y siembra datos iniciales.
@@ -361,6 +365,295 @@ export class Database {
     return Number(result.changes?.changes ?? 0) > 0;
   }
 
+  // Crea un ciclo nuevo en la base de datos y retorna su id generado.
+  async createCiclo(input: Ciclo): Promise<number> {
+    // Normaliza el nombre y valida que exista contenido mínimo.
+    const name = (input.getIdCiclo ?? '');
+
+    // Si el nombre es vacío, lanza error de validación.
+    if (!name) {
+      throw new Error('El nombre del ciclo es obligatorio');
+    }
+
+    // Inserta el ciclo usando parámetros para evitar interpolación manual.
+    const result = await this.run(
+      'INSERT INTO ciclos (id_ciclo, descripcion, periodicidad) VALUES (?, ?, ?);',
+      [
+        input.getIdCiclo() || null,
+        input.getDescripcion() || null,
+        input.getPeriodicidad()|| null,
+        
+      ],
+    );
+
+    // Obtiene el id insertado si existe, en otro caso retorna 0.
+    return Number(result.changes?.lastId ?? 0);
+  }
+
+  // Actualiza un ciclo existente en la base de datos y retorna true si hubo cambios.
+  async updateCiclo(input: Ciclo): Promise<boolean> {
+    // Valida el id de ciclo a modificar.
+    if (!Number.isInteger(input.getIdCiclo()) || input.getIdCiclo() <= 0) {
+      throw new Error('El id del ciclo es inválido');
+    }
+
+    // Normaliza el nombre y valida que exista contenido mínimo.
+    const name = (input.getIdCiclo() ?? '');
+
+    // Si el nombre es vacío, lanza error de validación.
+    if (!name) {
+      throw new Error('El nombre del ciclo es obligatorio');
+    }
+
+    // Ejecuta actualización parametrizada de los campos editables.
+    const result = await this.run(
+      'UPDATE macromedidores SET nombre = ?, subtitle = ?, description = ?, instructions = ?, time_required = ? WHERE id_macro_medidor = ?;',
+      [
+        name,
+          input.getIdCiclo() || null,
+        input.getDescripcion() || null,
+        input.getPeriodicidad()|| null,
+      ],
+    );
+
+    // Retorna true cuando al menos una fila fue actualizada.
+    return Number(result.changes?.changes ?? 0) > 0;
+  }
+
+  // Elimina un ciclo por id y retorna true si se eliminó al menos un registro.
+  async deleteCiclo(id: number): Promise<boolean> {
+    // Valida el identificador recibido.
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new Error('El id del ciclo es inválido');
+    }
+
+    // Ejecuta eliminación parametrizada del ciclo.
+    const result = await this.run('DELETE FROM ciclos WHERE id_ciclo = ?;', [id]);
+
+    // Retorna true cuando se elimina al menos una fila.
+    return Number(result.changes?.changes ?? 0) > 0;
+  }
+  // Crea una lectura nueva en la base de datos y retorna su id generado.
+  async createLecturas(input: Lectura): Promise<number> {
+    // Normaliza el nombre y valida que exista contenido mínimo.
+    const name = (input.getIdLectura ?? '');
+
+    // Si el nombre es vacío, lanza error de validación.
+    if (!name) {
+      throw new Error('El nombre de la receta es obligatorio');
+    }
+
+    // Inserta la lectura usando parámetros para evitar interpolación manual.
+    const result = await this.run(
+      'INSERT INTO lecturas (id_lectura, valor_lectura, fecha_lectura, novedad_estado, id_macro_foto, id_usuario) VALUES (?, ?, ?, ?, ?, ?);',
+      [
+        input.getIdLectura() || null,
+        input.getValorLectura() || null,
+        input.getFechaLectura() || null,
+        input.getNovedadEstado() || null,
+        input.getIdMacroFoto() || null,
+        input.getIdUsuario() || null,
+      ],
+    );
+
+    // Obtiene el id insertado si existe, en otro caso retorna 0.
+    return Number(result.changes?.lastId ?? 0);
+  }
+
+  // Actualiza un Lectura existente en la base de datos y retorna true si hubo cambios.
+  async updateLecturas(input: Lectura): Promise<boolean> {
+    // Valida el id de La lectura a modificar.
+    if (!Number.isInteger(input.getIdLectura()) || input.getIdLectura() <= 0) {
+      throw new Error('El id de la lectura es inválido');
+    }
+
+    // Normaliza el nombre y valida que exista contenido mínimo.
+    const name = (input.getIdLectura() ?? '');
+
+    // Si el nombre es vacío, lanza error de validación.
+    if (!name) {
+      throw new Error('El nombre de la lectura es obligatorio');
+    }
+
+    // Ejecuta actualización parametrizada de los campos editables.
+    const result = await this.run(
+      'UPDATE macromedidores SET nombre = ?, subtitle = ?, description = ?, instructions = ?, time_required = ? WHERE id_macro_medidor = ?;',
+      [
+        name,
+         input.getIdLectura() || null,
+        input.getValorLectura() || null,
+        input.getFechaLectura() || null,
+        input.getNovedadEstado() || null,
+        input.getIdMacroFoto() || null,
+        input.getIdUsuario() || null,
+      ],
+    );
+
+    // Retorna true cuando al menos una fila fue actualizada.
+    return Number(result.changes?.changes ?? 0) > 0;
+  }
+
+  // Elimina una lectura por id y retorna true si se eliminó al menos un registro.
+  async deleteLecturas(id: number): Promise<boolean> {
+    // Valida el identificador recibido.
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new Error('El id de la lectura es inválido');
+    }
+
+    // Ejecuta eliminación parametrizada de la lectura.
+    const result = await this.run('DELETE FROM lecturas WHERE id_lectura = ?;', [id]);
+
+    // Retorna true cuando se elimina al menos una fila.
+    return Number(result.changes?.changes ?? 0) > 0;
+  }
+  // Crea un Perdida nueva en la base de datos y retorna su id generado.
+  async createPerdidas(input: MacroMedidor): Promise<number> {
+    // Normaliza el nombre y valida que exista contenido mínimo.
+    const name = (input.getNombre ?? '');
+
+    // Si el nombre es vacío, lanza error de validación.
+    if (!name) {
+      throw new Error('El nombre de la receta es obligatorio');
+    }
+
+    // Inserta la perdida usando parámetros para evitar interpolación manual.
+    const result = await this.run(
+      'INSERT INTO perdidas (id_perdida, subtitle, description, instructions, time_required) VALUES (?, ?, ?, ?, ?);',
+      [
+        input.getSigCoord() || null,
+        input.getIdMacroMedidor() || null,
+        input.getIdCiclo() || null,
+        input.getNombre() || null,
+        input.getDireccion() || null,
+        input.getTipoInstalacion() || null,
+      ],
+    );
+
+    // Obtiene el id insertado si existe, en otro caso retorna 0.
+    return Number(result.changes?.lastId ?? 0);
+  }
+
+  // Actualiza una perdida existente en la base de datos y retorna true si hubo cambios.
+  async updatePerdidas(input: MacroMedidor): Promise<boolean> {
+    // Valida el id de la perdida a modificar.
+    if (!Number.isInteger(input.getIdMacroMedidor()) || input.getIdMacroMedidor() <= 0) {
+      throw new Error('El id de la perdida es inválido');
+    }
+
+    // Normaliza el nombre y valida que exista contenido mínimo.
+    const name = (input.getNombre() ?? '').trim();
+
+    // Si el nombre es vacío, lanza error de validación.
+    if (!name) {
+      throw new Error('El nombre de la perdida es obligatorio');
+    }
+
+    // Ejecuta actualización parametrizada de los campos editables.
+    const result = await this.run(
+      'UPDATE perdidas SET nombre = ?, subtitle = ?, description = ?, instructions = ?, time_required = ? WHERE id_perdida = ?;',
+      [
+        name,
+        input.getSigCoord() || null,
+        input.getIdCiclo() || null,
+        input.getNombre() || null,
+        input.getDireccion() || null,
+        input.getTipoInstalacion() || null,
+        input.getIdMacroMedidor(),
+      ],
+    );
+
+    // Retorna true cuando al menos una fila fue actualizada.
+    return Number(result.changes?.changes ?? 0) > 0;
+  }
+
+  // Elimina un perdida por id y retorna true si se eliminó al menos un registro.
+  async deletePerdidas(id: number): Promise<boolean> {
+    // Valida el identificador recibido.
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new Error('El id de la perdida es inválido');
+    }
+
+    // Ejecuta eliminación parametrizada de la perdida.
+    const result = await this.run('DELETE FROM perdidas WHERE id_perdida = ?;', [id]);
+
+    // Retorna true cuando se elimina al menos una fila.
+    return Number(result.changes?.changes ?? 0) > 0;
+  }
+
+  // Crea un usuario nuevo en la base de datos y retorna su id generado.
+  async createUsuario(input: MacroMedidor): Promise<number> {
+    // Normaliza el nombre y valida que exista contenido mínimo.
+    const name = (input.getNombre ?? '');
+
+    // Si el nombre es vacío, lanza error de validación.
+    if (!name) {
+      throw new Error('El nombre de la receta es obligatorio');
+    }
+
+    // Inserta el usuario usando parámetros para evitar interpolación manual.
+    const result = await this.run(
+      'INSERT INTO usuarios (id_usuario, subtitle, description, instructions, time_required) VALUES (?, ?, ?, ?, ?);',
+      [
+        input.getSigCoord() || null,
+        input.getIdMacroMedidor() || null,
+        input.getIdCiclo() || null,
+        input.getNombre() || null,
+        input.getDireccion() || null,
+        input.getTipoInstalacion() || null,
+      ],
+    );
+
+    // Obtiene el id insertado si existe, en otro caso retorna 0.
+    return Number(result.changes?.lastId ?? 0);
+  }
+
+  // Actualiza un usuario existente en la base de datos y retorna true si hubo cambios.
+  async updateUsuario(input: MacroMedidor): Promise<boolean> {
+    // Valida el id de usuario a modificar.
+    if (!Number.isInteger(input.getIdMacroMedidor()) || input.getIdMacroMedidor() <= 0) {
+      throw new Error('El id del usuario es inválido');
+    }
+
+    // Normaliza el nombre y valida que exista contenido mínimo.
+    const name = (input.getNombre() ?? '').trim();
+
+    // Si el nombre es vacío, lanza error de validación.
+    if (!name) {
+      throw new Error('El nombre del usuario es obligatorio');
+    }
+
+    // Ejecuta actualización parametrizada de los campos editables.
+    const result = await this.run(
+      'UPDATE usuarios SET nombre = ?, subtitle = ?, description = ?, instructions = ?, time_required = ? WHERE id_usuario = ?;',
+      [
+        name,
+        input.getSigCoord() || null,
+        input.getIdCiclo() || null,
+        input.getNombre() || null,
+        input.getDireccion() || null,
+        input.getTipoInstalacion() || null,
+        input.getIdMacroMedidor(),
+      ],
+    );
+
+    // Retorna true cuando al menos una fila fue actualizada.
+    return Number(result.changes?.changes ?? 0) > 0;
+  }
+
+  // Elimina un usuario por id y retorna true si se eliminó al menos un registro.
+  async deleteUsuario(id: number): Promise<boolean> {
+    // Valida el identificador recibido.
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new Error('El id del usuario es inválido');
+    }
+
+    // Ejecuta eliminación parametrizada del usuario.
+    const result = await this.run('DELETE FROM usuarios WHERE id_usuario = ?;', [id]);
+
+    // Retorna true cuando se elimina al menos una fila.
+    return Number(result.changes?.changes ?? 0) > 0;
+  }
+
   
   // Devuelve una conexión abierta y válida, inicializando la base si es necesario.
   private async getOpenedConnection(): Promise<SQLiteDBConnection> {
@@ -435,30 +728,28 @@ export class Database {
     const statements = [
       // Activa las restricciones de llaves foráneas en SQLite.
       'PRAGMA foreign_keys = ON;',
-      // Sentencia para crear tabla de categorías.
+      // Sentencia para crear tabla de ciclos.
       `
-      CREATE TABLE IF NOT EXISTS categories (
+      CREATE TABLE IF NOT EXISTS ciclos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE,
         description TEXT
       );
       `,
-      // Sentencia para crear tabla de ingredientes.
+      // Sentencia para crear tabla de Lectura.
       `
-      CREATE TABLE IF NOT EXISTS ingredients (
+      CREATE TABLE IF NOT EXISTS lectura (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL UNIQUE
+        name TEXT NOT NULL UNIQUE,
+        description TEXT
       );
       `,
-      // Sentencia para crear tabla de recetas.
+      // Sentencia para crear tabla de macromedidor.
       `
-      CREATE TABLE IF NOT EXISTS recipes (
+      CREATE TABLE IF NOT EXISTS macromedidor (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        subtitle TEXT,
-        description TEXT,
-        instructions TEXT,
-        time_required INTEGER
+        name TEXT NOT NULL UNIQUE,
+        description TEXT
       );
       `,
       // Sentencia para crear tabla de usuarios.
@@ -471,25 +762,48 @@ export class Database {
         contrasena TEXT NOT NULL
       );
       `,
-      // Sentencia para crear tabla intermedia receta-categoría (muchos a muchos).
+      // Sentencia para crear tabla de perdidas.
       `
-      CREATE TABLE IF NOT EXISTS recipe_categories (
-        recipe_id INTEGER NOT NULL,
-        category_id INTEGER NOT NULL,
-        PRIMARY KEY (recipe_id, category_id),
-        FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE,
-        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+      CREATE TABLE IF NOT EXISTS perdidas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        description TEXT
       );
       `,
-      // Sentencia para crear tabla intermedia receta-ingrediente con cantidad.
+
+
+      // Sentencia para crear tabla intermedia ciclo-macromedidor (muchos a muchos).
       `
-      CREATE TABLE IF NOT EXISTS recipe_ingredients (
-        recipe_id INTEGER NOT NULL,
-        ingredient_id INTEGER NOT NULL,
-        quantity TEXT,
-        PRIMARY KEY (recipe_id, ingredient_id),
-        FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE,
-        FOREIGN KEY (ingredient_id) REFERENCES ingredients(id) ON DELETE CASCADE
+      CREATE TABLE IF NOT EXISTS ciclo_macromedidor (
+        ciclo_id INTEGER NOT NULL,
+        macromedidor_id INTEGER NOT NULL,
+        PRIMARY KEY (ciclo_id, macromedidor_id),
+        FOREIGN KEY (ciclo_id) REFERENCES ciclos(id) ON DELETE CASCADE,
+        FOREIGN KEY (macromedidor_id) REFERENCES macromedidor(id) ON DELETE CASCADE
+      );
+      `,
+      // Sentencia para crear tabla intermedia ciclo-lectura-macromedidor (muchos a muchos).
+      `
+      CREATE TABLE IF NOT EXISTS ciclo_lectura_macromedidor (
+        ciclo_id INTEGER NOT NULL,
+        lectura_id INTEGER NOT NULL,
+        macromedidor_id INTEGER NOT NULL,
+        PRIMARY KEY (ciclo_id, lectura_id, macromedidor_id),
+        FOREIGN KEY (ciclo_id) REFERENCES ciclos(id) ON DELETE CASCADE,
+        FOREIGN KEY (lectura_id) REFERENCES lectura(id) ON DELETE CASCADE,
+        FOREIGN KEY (macromedidor_id) REFERENCES macromedidor(id) ON DELETE CASCADE
+      );
+      `,
+       // Sentencia para crear tabla intermedia perdidas-ciclo (muchos a muchos).
+      `
+      CREATE TABLE IF NOT EXISTS ciclo_perdidas (
+        ciclo_id INTEGER NOT NULL,
+        perdida_id INTEGER NOT NULL,
+        macromedidor_id INTEGER NOT NULL,
+        PRIMARY KEY (ciclo_id, perdida_id, macromedidor_id),
+        FOREIGN KEY (ciclo_id) REFERENCES ciclos(id) ON DELETE CASCADE,
+        FOREIGN KEY (perdida_id) REFERENCES perdidas(id) ON DELETE CASCADE,
+        FOREIGN KEY (macromedidor_id) REFERENCES macromedidor(id) ON DELETE CASCADE
       );
       `,
     ];
