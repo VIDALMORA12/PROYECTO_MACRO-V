@@ -741,7 +741,15 @@ export class Database {
       CREATE TABLE IF NOT EXISTS lectura (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE,
-        description TEXT
+        description TEXT,
+        valor_lectura REAL,
+        fecha_lectura datetime,
+        novedad_estado TEXT,
+        id_macro_foto INTEGER,
+        id_usuario INTEGER,
+        id_macromedidor INTEGER,
+        FOREIGN KEY (id_macromedidor) REFERENCES macromedidor(id) ON DELETE SET NULL
+
       );
       `,
       // Sentencia para crear tabla de macromedidor.
@@ -749,7 +757,9 @@ export class Database {
       CREATE TABLE IF NOT EXISTS macromedidor (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE,
-        description TEXT
+        description TEXT,
+        id_ciclo INTEGER,
+        FOREIGN KEY (id_ciclo) REFERENCES ciclos(id) ON DELETE SET NULL
       );
       `,
       // Sentencia para crear tabla de usuarios.
@@ -771,29 +781,6 @@ export class Database {
       );
       `,
 
-
-      // Sentencia para crear tabla intermedia ciclo-macromedidor (muchos a muchos).
-      `
-      CREATE TABLE IF NOT EXISTS ciclo_macromedidor (
-        ciclo_id INTEGER NOT NULL,
-        macromedidor_id INTEGER NOT NULL,
-        PRIMARY KEY (ciclo_id, macromedidor_id),
-        FOREIGN KEY (ciclo_id) REFERENCES ciclos(id) ON DELETE CASCADE,
-        FOREIGN KEY (macromedidor_id) REFERENCES macromedidor(id) ON DELETE CASCADE
-      );
-      `,
-      // Sentencia para crear tabla intermedia ciclo-lectura-macromedidor (muchos a muchos).
-      `
-      CREATE TABLE IF NOT EXISTS ciclo_lectura_macromedidor (
-        ciclo_id INTEGER NOT NULL,
-        lectura_id INTEGER NOT NULL,
-        macromedidor_id INTEGER NOT NULL,
-        PRIMARY KEY (ciclo_id, lectura_id, macromedidor_id),
-        FOREIGN KEY (ciclo_id) REFERENCES ciclos(id) ON DELETE CASCADE,
-        FOREIGN KEY (lectura_id) REFERENCES lectura(id) ON DELETE CASCADE,
-        FOREIGN KEY (macromedidor_id) REFERENCES macromedidor(id) ON DELETE CASCADE
-      );
-      `,
        // Sentencia para crear tabla intermedia perdidas-ciclo (muchos a muchos).
       `
       CREATE TABLE IF NOT EXISTS ciclo_perdidas (

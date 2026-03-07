@@ -1,0 +1,22 @@
+/* Centrado del formulario */
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+ion-card {
+  width: 90%;
+  max-width: 450px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* Ajuste para que la alerta se vea más a la derecha en pantallas grandes */
+::ng-deep .custom-toast {
+  --width: 350px;
+  --end: 20px; /* Margen derecho */
+  --top: 20px;
+}
