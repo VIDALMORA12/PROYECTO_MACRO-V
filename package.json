@@ -1,5 +1,5 @@
 {
-  "name": "MacroV_app",
+  "name": "macrov-app",
   "version": "0.0.1",
   "author": "Ionic Framework",
   "homepage": "https://ionicframework.com/",
@@ -32,6 +32,7 @@
     "echarts": "^6.0.0",
 
     "chart.js": "^4.5.1",
+
     "ionicons": "^7.0.0",
     "jeep-sqlite": "^2.8.0",
     "rxjs": "~7.8.0",
@@ -46,9 +47,7 @@
     "@angular-eslint/schematics": "^20.0.0",
     "@angular-eslint/template-parser": "^20.0.0",
 
-    "@angular/cli": "20.3.16",
-
-    "@angular/cli": "^20.0.0",
+    "@angular/cli": "20.3.19",
 
     "@angular/compiler-cli": "^20.0.0",
     "@angular/language-service": "^20.0.0",

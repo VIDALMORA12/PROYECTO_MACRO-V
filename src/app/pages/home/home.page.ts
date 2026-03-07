@@ -1,4 +1,3 @@
-
 import { Component, OnInit,ViewChild, ElementRef  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
