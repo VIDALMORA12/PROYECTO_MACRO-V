@@ -21,7 +21,7 @@ export class AppComponent {
     { title: 'Lecturas', url: 'lecturas', icon: 'receipt' },
     { title: 'Macro_medidores', url: 'macro_medidor', icon: 'timer' },
   ];
-  public labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
+  public labels = ['Responsabilidad','Honestidad','Respeto','Trabajo en equipo'];
   
   
   constructor() {

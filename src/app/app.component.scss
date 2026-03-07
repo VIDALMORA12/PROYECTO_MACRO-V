@@ -1,119 +1,86 @@
-ion-menu ion-content {
-  --background: var(--ion-item-background, var(--ion-background-color, #fff));
+/* 1. Fondo Tri-Color con Brillo */
+ion-menu {
+  ion-content {
+    --background: linear-gradient(135deg, #b2e7fc 0%, #3d08ff 100%);
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle at 50% 0%, rgba(255, 0, 0, 0.15), transparent);
+      pointer-events: none;
+    }
+  }
 }
 
-ion-menu.md ion-content {
-  --padding-start: 8px;
-  --padding-end: 8px;
-  --padding-top: 20px;
-  --padding-bottom: 20px;
+/* 2. Ítems: Movimiento lateral al señalar */
+.menu-item {
+  --background: rgba(255, 255, 255, 0.05);
+  --color: #ffffff;
+  --border-radius: 15px;
+  margin: 10px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  /* Movimiento suave con curva elástica */
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  ion-icon {
+    transition: all 0.3s ease;
+    color: #ffffff;
+  }
+
+  &:hover {
+    --background: rgba(255, 255, 255, 0.25);
+    /* Efecto de desplazamiento lateral solicitado */
+    transform: translateX(15px) scale(1.02);
+    box-shadow: -5px 5px 20px rgba(0, 0, 0, 0.3);
+    
+    ion-icon {
+      transform: scale(1.2) rotate(5deg);
+      color: #eb0000;
+    }
+  }
 }
 
-ion-menu.md ion-list {
-  padding: 20px 0;
+/* 3. Ítem Seleccionado: Efecto Vidrio Esmerilado */
+.selected {
+  --background: linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 100%) !important;
+  --color: #ffffff !important;
+  border-right: 4px solid #eb0000; 
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+
+  ion-icon {
+    color: #ffffff !important;
+    filter: drop-shadow(0 0 8px #ff0202); 
+  }
 }
 
-ion-menu.md ion-note {
-  margin-bottom: 30px;
+/* 4. Títulos Stencil */
+ion-list-header {
+  color: #ff0000 !important;
+  font-family: 'Stencil', sans-serif;
+  text-transform: uppercase;
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+  margin-top: 20px;
 }
 
-ion-menu.md ion-list-header,
-ion-menu.md ion-note {
-  padding-left: 10px;
-}
-
-ion-menu.md ion-list#inbox-list {
-  border-bottom: 1px solid var(--ion-background-color-step-150, #d7d8da);
-}
-
-ion-menu.md ion-list#inbox-list ion-list-header {
-  font-size: 22px;
-  font-weight: 600;
-
-  min-height: 20px;
-}
-
-ion-menu.md ion-list#labels-list ion-list-header {
-  font-size: 16px;
-
-  margin-bottom: 18px;
-
-  color: #757575;
-
-  min-height: 26px;
-}
-
-ion-menu.md ion-item {
-  --padding-start: 10px;
-  --padding-end: 10px;
-  border-radius: 4px;
-}
-
-ion-menu.md ion-item.selected {
-  --background: rgba(var(--ion-color-primary-rgb), 0.14);
-}
-
-ion-menu.md ion-item.selected ion-icon {
-  color: var(--ion-color-primary);
-}
-
-ion-menu.md ion-item ion-icon {
-  color: #616e7e;
-}
-
-ion-menu.md ion-item ion-label {
-  font-weight: 500;
-}
-
-ion-menu.ios ion-content {
-  --padding-bottom: 20px;
-}
-
-ion-menu.ios ion-list {
-  padding: 20px 0 0 0;
-}
-
-ion-menu.ios ion-note {
-  line-height: 24px;
-  margin-bottom: 20px;
-}
-
-ion-menu.ios ion-item {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --min-height: 50px;
-}
-
-ion-menu.ios ion-item.selected ion-icon {
-  color: var(--ion-color-primary);
-}
-
-ion-menu.ios ion-item ion-icon {
-  font-size: 24px;
-  color: #73849a;
-}
-
-ion-menu.ios ion-list#labels-list ion-list-header {
-  margin-bottom: 8px;
-}
-
-ion-menu.ios ion-list-header,
-ion-menu.ios ion-note {
-  padding-left: 16px;
-  padding-right: 16px;
-}
-
-ion-menu.ios ion-note {
-  margin-bottom: 8px;
-}
-
+/* 5. Nota de Usuario (Vidal) */
 ion-note {
+  background: rgba(248, 101, 101, 0.9); 
+  padding: 6px 18px;
+  border-radius: 20px;
+  margin: 12px 20px;
+  color: #ffffff !important;
+  font-size: 0.85rem;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(235, 0, 0, 0.3);
   display: inline-block;
-  font-size: 16px;
-
-  color: var(--ion-color-medium-shade);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-ion-item.selected {
-  --color: var(--ion-color-primary);
+/* 6. Limpieza */
+ion-list {
+  background: transparent !important;
 }
