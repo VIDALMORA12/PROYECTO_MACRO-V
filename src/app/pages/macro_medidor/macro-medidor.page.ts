@@ -33,7 +33,8 @@ export class MacromedidoresPage {
   async cargarTodo() {
     this.cargando = true;
     try {
-      this.dashboard = await this.db.getTodoElDashboard() || [];
+      // CORRECCIÓN: El dashboard es un objeto, no un arreglo
+      this.dashboard = await this.db.getTodoElDashboard();
       await this.cargarHistorial();
     } catch (error) {
       console.error('Error:', error);
