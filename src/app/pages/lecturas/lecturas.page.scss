@@ -1,0 +1,102 @@
+// Contenedor principal
+ion-content {
+  --background: #fdfdfd;
+}
+
+// Estilo para el encabezado del medidor seleccionado (Paso 3)
+.header-macro {
+  text-align: center;
+  padding: 20px 15px;
+  background: white;
+  border: 2px solid var(--ion-color-danger);
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+  p {
+    margin: 0;
+    color: #666;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  h1 {
+    margin: 8px 0;
+    color: var(--ion-color-danger);
+    font-weight: 800;
+    font-size: 1.6rem;
+  }
+}
+
+// Estilo para los botones de la malla de ciclos (Paso 1)
+ion-grid {
+  margin-top: 15px;
+  
+  ion-col {
+    padding: 8px;
+  }
+
+  ion-button {
+    --border-radius: 8px;
+    height: 55px; // Botones más altos para facilitar el toque en campo
+    font-weight: bold;
+    font-size: 1rem;
+  }
+}
+
+// Títulos de secciones
+h2 {
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+// Ajustes para la lista de medidores (Paso 2)
+ion-list {
+  background: transparent;
+  border-radius: 12px;
+  overflow: hidden;
+
+  ion-item {
+    --padding-start: 16px;
+    --inner-padding-end: 16px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    --background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+
+    h2 {
+      margin-bottom: 4px;
+      font-size: 1.1rem;
+      color: var(--ion-color-dark);
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: #777;
+    }
+  }
+}
+
+// Encabezados de listas
+ion-list-header {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ion-color-danger);
+  padding-bottom: 10px;
+}
+
+// Botones de acción final
+.ion-margin-top {
+  margin-top: 25px !important;
+  --border-radius: 10px;
+  height: 50px;
+}
+
+// Estilo del botón de cámara
+.ion-padding ion-button[color="warning"] {
+  --border-radius: 10px;
+  font-weight: bold;
+  margin-top: 10px;
+}

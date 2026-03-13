@@ -1,22 +1,27 @@
-/* Centrado del formulario */
-.login-wrapper {
+.login-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: center;
-  height: 100%;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-}
+  min-height: 100%;
+  padding: 16px;
 
-ion-card {
-  width: 90%;
-  max-width: 450px;
-  border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-}
+  .logo-section {
+    text-align: center;
+    margin-bottom: 24px;
+    
+    ion-icon {
+      font-size: 64px;
+      color: var(--ion-color-primary);
+    }
 
-/* Ajuste para que la alerta se vea más a la derecha en pantallas grandes */
-::ng-deep .custom-toast {
-  --width: 350px;
-  --end: 20px; /* Margen derecho */
-  --top: 20px;
+    h2 {
+      font-weight: 700;
+      color: var(--ion-color-primary);
+    }
+  }
+
+  .error-message {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
 }

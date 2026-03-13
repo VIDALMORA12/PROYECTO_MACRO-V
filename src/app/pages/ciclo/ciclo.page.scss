@@ -1,0 +1,41 @@
+.chart-box {
+  height: 250px;
+  margin-bottom: 20px;
+}
+
+.divisor {
+  margin: 20px 0;
+  border: 0;
+  border-top: 1px solid #ddd;
+}
+
+.card-ruta {
+  margin: 5px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: 0.3s;
+  &:active { transform: scale(0.95); }
+}
+
+.card-zona {
+  border-bottom: 5px solid var(--ion-color-secondary);
+  background: #fdfdfd;
+}
+
+.tabla-container {
+  margin-top: 25px;
+  padding: 15px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
+}
+
+.tabla-excel {
+  width: 100%;
+  border-collapse: collapse;
+  th { background: #f4f5f8; padding: 10px; border: 1px solid #eee; font-size: 0.8rem; }
+  td { padding: 10px; border: 1px solid #eee; font-size: 0.85rem; }
+}
+
+.error { color: red; font-weight: bold; }

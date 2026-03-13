@@ -1,0 +1,30 @@
+.tabla-historial {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background: white;
+
+  th {
+    background: #f4f5f8;
+    color: #444;
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+    font-size: 14px;
+  }
+
+  td {
+    padding: 10px;
+    border: 1px solid #eee;
+    font-size: 13px;
+  }
+
+  tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+}
+
+.totalizador-ingeniero {
+  border-left: 5px solid var(--ion-color-danger);
+  border-radius: 8px;
+}

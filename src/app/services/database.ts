@@ -1,849 +1,154 @@
-// Importa el decorador Injectable para registrar este servicio en el sistema de inyección de Angular.
 import { Injectable } from '@angular/core';
-// Importa BehaviorSubject para manejar estado reactivo y Observable para exponerlo de forma segura.
 import { BehaviorSubject, Observable } from 'rxjs';
-// Importa Capacitor para detectar en qué plataforma corre la app (web, android, ios).
 import { Capacitor } from '@capacitor/core';
-// Importa las clases y tipos necesarios del plugin SQLite para crear y operar la base de datos.
 import {
-  // Objeto principal del plugin SQLite de Capacitor.
   CapacitorSQLite,
-  // Clase que gestiona conexiones SQLite a nivel global.
   SQLiteConnection,
-  // Tipo de una conexión concreta abierta hacia una base de datos.
   SQLiteDBConnection,
-  // Tipo de retorno para operaciones que modifican datos (INSERT, UPDATE, DELETE).
   capSQLiteChanges,
-  // Tipo de retorno para consultas que devuelven filas (SELECT).
   capSQLiteValues,
 } from '@capacitor-community/sqlite';
-import { Ciclo } from '../models/ciclo';
-import { Lectura } from '../models/lectura';
+
 import { Usuario } from '../models/usuario';
-import { MacroMedidor } from '../models/macro-medidor';
-import { Perdidas } from '../models/perdidas';
-// Define los tipos de valor permitidos al enviar parámetros SQL.
+
 type SqlValue = string | number | null;
 
-
-
-// Declara este servicio como inyectable y disponible globalmente en toda la aplicación.
 @Injectable({
-  // Indica que Angular creará una sola instancia compartida del servicio.
   providedIn: 'root',
 })
-// Define la clase del servicio que centraliza el acceso a SQLite.
 export class Database {
-  // Nombre físico del archivo de base de datos.
-  private readonly dbName = 'cookbook_db';
-  // Versión del esquema de base de datos.
+  private readonly dbName = 'Macro_V';
   private readonly dbVersion = 1;
-  // Instancia administradora de conexiones SQLite.
   private readonly sqlite = new SQLiteConnection(CapacitorSQLite);
-  // Referencia a la conexión activa; empieza en null hasta inicializarse.
   private db: SQLiteDBConnection | null = null;
-  // Promesa de inicialización en curso para evitar ejecuciones concurrentes.
   private initializingPromise: Promise<void> | null = null;
-  // Estado reactivo de disponibilidad de la base de datos.
   private readonly ready$ = new BehaviorSubject<boolean>(false);
 
-  // Lista base de categorías que se insertan automáticamente si la tabla está vacía.
-  readonly defaultCategories: ReadonlyArray<string> = [
-    // LECTURAS CICLO1.
-    'Ciclo1',
-    // LECTURAS CICLO2.
-    'Ciclo2',
-    // LECTURAS CICLO3.
-    'Ciclo3',
-    // LECTURAS CICLO4.
-    'Ciclo4',
-    // LECTURAS CICLO5.
-    'Ciclo5',
-    // LECTURAS CICLO6.
-    'Ciclo6',
-    // LECTURAS CICLO7.
-    'Ciclo7',
-    // LECTURAS CICLO8.
-    'Ciclo8',
-    // LECTURAS CICLO9.
-    'Ciclo9',
-    // LECTURAS CICLO10.
-    'Ciclo10',
-    // LECTURAS CICLO11.
-    'Ciclo11',
-    // CICLO DE LECTURAS RURAL 12.
-    'Ciclo12',
-    //LECTURAS RURALES.
-    'Zona1',
-    //LECTURAS RURALES.
-    'Zona2',
-    //LECTURAS RURALES.
-    'Zona3',
+  readonly defaultCiclos: ReadonlyArray<string> = [
+    'Ciclo1', 'Ciclo2', 'Ciclo3', 'Ciclo4', 'Ciclo5', 'Ciclo6',
+    'Ciclo7', 'Ciclo8', 'Ciclo9', 'Ciclo10', 'Ciclo11', 'Ciclo12',
+    'Zona1', 'Zona2', 'Zona3'
   ];
 
-  // Inicializa la base de datos, abre conexión, crea esquema y siembra datos iniciales.
   async initializeDatabase(): Promise<void> {
-    // Evita inicializar dos veces si ya está lista y existe conexión activa.
-    if (this.ready$.value && this.db) {
-      // Sale inmediatamente cuando ya existe una conexión funcional.
-      return;
-    }
+    if (this.initializingPromise) return this.initializingPromise;
 
-    // Si ya hay una inicialización en curso, espera su resultado para evitar conflictos.
-    if (this.initializingPromise) {
-      // Reutiliza la misma promesa en lugar de abrir otra inicialización paralela.
-      await this.initializingPromise;
-      // Sale al completar la inicialización existente.
-      return;
-    }
+    this.initializingPromise = (async () => {
+      try {
+        const platform = Capacitor.getPlatform();
+        if (platform === 'web') {
+          let jeepEl = document.querySelector('jeep-sqlite');
+          if (!jeepEl) {
+            jeepEl = document.createElement('jeep-sqlite');
+            document.body.appendChild(jeepEl);
+          }
+          await customElements.whenDefined('jeep-sqlite');
+          await CapacitorSQLite.initWebStore();
+        }
 
-    // Crea y registra la promesa de inicialización para serializar accesos concurrentes.
-    this.initializingPromise = this.initializeDatabaseInternal();
-
-    try {
-      // Espera a que termine la inicialización real.
-      await this.initializingPromise;
-    } finally {
-      // Limpia la referencia de bloqueo para permitir futuras inicializaciones si hicieran falta.
-      this.initializingPromise = null;
-    }
-  }
-
-  // Ejecuta el flujo real de inicialización de la base de datos.
-  private async initializeDatabaseInternal(): Promise<void> {
-    // Si durante la espera ya quedó lista, evita trabajo duplicado.
-    if (this.ready$.value && this.db) {
-      // Sale porque no es necesario repetir inicialización.
-      return;
-    }
-
-    // En web asegura que el store de jeep-sqlite esté abierto antes de operar.
-    if (Capacitor.getPlatform() === 'web') {
-      await CapacitorSQLite.initWebStore();
-    }
-
-    // Verifica consistencia interna de conexiones administradas por el plugin.
-    const consistency = await this.sqlite.checkConnectionsConsistency();
-    // Comprueba si ya existe una conexión registrada con este nombre.
-    const isConn = await this.sqlite.isConnection(this.dbName, false);
-
-    // Si la conexión existe y está consistente, la recupera.
-    if (consistency.result && isConn.result) {
-      // Reutiliza conexión previamente creada para evitar duplicados.
-      this.db = await this.sqlite.retrieveConnection(this.dbName, false);
-    } else {
-      // Si no existe, crea una conexión nueva con los parámetros definidos.
-      this.db = await this.sqlite.createConnection(
-        // Nombre de la base de datos.
-        this.dbName,
-        // No usa conexión cifrada compartida.
-        false,
-        // Tipo de cifrado deshabilitado.
-        'no-encryption',
-        // Versión del esquema.
-        this.dbVersion,
-        // No es conexión de solo lectura.
-        false,
-      );
-    }
-
-    // Abre la conexión a la base de datos.
-    try {
-      // Intenta abrir normalmente la base de datos.
-      await this.db.open();
-    } catch (error) {
-      // En web, si la base local quedó inconsistente, intenta recuperar creando una base limpia.
-      if (Capacitor.getPlatform() === 'web') {
-        // Muestra información de diagnóstico en consola para facilitar soporte.
-        console.warn('No se pudo abrir la base web; se intentará recrearla.', error);
-        // Cierra la conexión actual si existe para liberar recursos antes de borrar.
-        await this.sqlite.closeConnection(this.dbName, false).catch(() => undefined);
-        // Borra la base local del store web para eliminar estado corrupto.
-        await CapacitorSQLite.deleteDatabase({
-          database: this.dbName,
-          readonly: false,
-        }).catch(() => undefined);
-        // Crea una nueva conexión limpia con la misma configuración.
-        this.db = await this.sqlite.createConnection(
-          // Nombre de la base de datos.
-          this.dbName,
-          // No usa conexión cifrada compartida.
-          false,
-          // Tipo de cifrado deshabilitado.
-          'no-encryption',
-          // Versión del esquema.
-          this.dbVersion,
-          // No es conexión de solo lectura.
-          false,
-        );
-        // Abre nuevamente la conexión ya recreada.
+        this.db = await this.sqlite.createConnection(this.dbName, false, 'no-encryption', this.dbVersion, false);
         await this.db.open();
-      } else {
-        // En plataformas nativas, propaga el error original para no ocultar fallos reales.
+        await this.createSchema();
+        await this.seedBaseData();
+        await this.persistWebStore();
+
+        this.ready$.next(true);
+      } catch (error) {
+        console.error('❌ Error crítico:', error);
+        this.ready$.next(false);
         throw error;
       }
+    })();
+    return this.initializingPromise;
+  }
+
+  private async createSchema(): Promise<void> {
+    const statements = [
+      `CREATE TABLE IF NOT EXISTS ciclos (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT NOT NULL UNIQUE, descripcion TEXT);`,
+      `CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, rol TEXT, usuario TEXT UNIQUE, contrasena TEXT);`,
+      `CREATE TABLE IF NOT EXISTS macro_medidores (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT NOT NULL, id_ciclo INTEGER, direccion TEXT, sig_coord TEXT, tipo_instalacion TEXT, estado TEXT DEFAULT 'operativo', observacion TEXT, FOREIGN KEY(id_ciclo) REFERENCES ciclos(id));`,
+      `CREATE TABLE IF NOT EXISTS lecturas (id INTEGER PRIMARY KEY AUTOINCREMENT, id_macromedidor TEXT, valor_lectura REAL, estado_encontrado TEXT, observacion TEXT, foto_path TEXT, fecha_lectura TEXT, id_usuario INTEGER, FOREIGN KEY(id_usuario) REFERENCES usuarios(id));`
+    ];
+    await this.db!.execute(statements.join('\n'));
+  }
+
+  private async seedBaseData(): Promise<void> {
+    const count = await this.query('SELECT COUNT(*) as total FROM ciclos;');
+    if (Number(count.values?.[0]?.total ?? 0) === 0) {
+      for (const nombre of this.defaultCiclos) {
+        await this.run('INSERT INTO ciclos (nombre) VALUES (?);', [nombre]);
+      }
     }
-    // Crea las tablas y relaciones necesarias si aún no existen.
-    await this.createSchema();
-    // Inserta datos base si la base está vacía.
-    await this.seedBaseData();
-
-    // Si la app corre en navegador, persiste el estado en el almacenamiento web del plugin.
-    // Persiste cambios en web de forma segura.
-    await this.persistWebStore();
-
-    // Marca el servicio como listo para usarse desde otras capas de la app.
-    this.ready$.next(true);
-  }
-
-  // Expone un observable para que otros componentes sepan cuándo la base está lista.
-  isReady(): Observable<boolean> {
-    // Devuelve la versión observable del BehaviorSubject sin permitir mutaciones externas.
-    return this.ready$.asObservable();
-  }
-
-  // Cierra la conexión activa y restablece el estado interno del servicio.
-  async closeConnection(): Promise<void> {
-    // Si no hay conexión activa, no hay nada por cerrar.
-    if (!this.db) {
-      // Sale sin hacer trabajo adicional.
-      return;
+    const userCount = await this.query('SELECT COUNT(*) as total FROM usuarios;');
+    if (Number(userCount.values?.[0]?.total ?? 0) === 0) {
+      await this.run('INSERT INTO usuarios (nombre, rol, usuario, contrasena) VALUES (?,?,?,?)', ['Admin', 'operador', 'admin', '1234']);
     }
-
-    // Cierra la conexión registrada por nombre.
-    await this.sqlite.closeConnection(this.dbName, false);
-    // Elimina la referencia local para evitar uso accidental.
-    this.db = null;
-    // Notifica que la base ya no está disponible.
-    this.ready$.next(false);
   }
 
-  // Ejecuta una sentencia SQL de escritura con parámetros opcionales.
-  async run(sql: string, values: SqlValue[] = []): Promise<capSQLiteChanges> {
-    // Garantiza obtener una conexión abierta antes de ejecutar.
+  // --- MÉTODOS RESTAURADOS PARA LOGIN Y REGISTRO ---
+
+  async validarUsuario(user: string, pass: string): Promise<Usuario | null> {
+    const result = await this.query('SELECT * FROM usuarios WHERE usuario = ? AND contrasena = ? LIMIT 1;', [user, pass]);
+    if (result.values && result.values.length > 0) {
+      const d = result.values[0];
+      return new Usuario(d.nombre, d.rol, d.usuario, d.contrasena);
+    }
+    return null;
+  }
+
+  async registrarUsuario(u: any): Promise<boolean> {
+    const sql = 'INSERT INTO usuarios (nombre, rol, usuario, contrasena) VALUES (?, ?, ?, ?);';
+    const result = await this.run(sql, [u.nombre, u.rol || 'operador', u.usuario, u.contrasena]);
+    return Number(result.changes?.changes ?? 0) > 0;
+  }
+
+  // --- MÉTODOS DE OPERACIÓN ---
+
+  async getCiclos() {
+    const res = await this.query('SELECT * FROM ciclos;');
+    return res.values || [];
+  }
+
+  async guardarLectura(l: any): Promise<boolean> {
+    const sql = `INSERT INTO lecturas (id_macromedidor, valor_lectura, estado_encontrado, observacion, foto_path, fecha_lectura, id_usuario) VALUES (?, ?, ?, ?, ?, datetime('now'), ?);`;
+    const res = await this.run(sql, [l.id_macromedidor, l.valor_lectura, l.estado_encontrado, l.observacion, l.foto_path, 1]);
+    return Number(res.changes?.changes ?? 0) > 0;
+  }
+
+  async getTodoElDashboard(): Promise<any> {
+    const med = await this.query('SELECT COUNT(*) as total FROM macro_medidores;');
+    const lec = await this.query('SELECT COUNT(*) as total FROM lecturas;');
+    const cic = await this.query('SELECT COUNT(*) as total FROM ciclos;');
+
+    return {
+      totalMedidores: med.values?.[0]?.total ?? 0,
+      totalLecturas: lec.values?.[0]?.total ?? 0,
+      totalCiclos: cic.values?.[0]?.total ?? 0
+    };
+  }
+
+  // --- UTILIDADES ---
+
+  private async persistWebStore() {
+    if (Capacitor.getPlatform() === 'web') await this.sqlite.saveToStore(this.dbName);
+  }
+
+  async run(sql: string, values: SqlValue[] = []) {
     const database = await this.getOpenedConnection();
-    // Ejecuta la sentencia SQL y captura el resultado de cambios.
     const result = await database.run(sql, values);
-
-    // En web, sincroniza cambios al almacenamiento persistente.
-    // Persiste cambios en web de forma segura.
     await this.persistWebStore();
-
-    // Retorna el detalle de filas afectadas e id insertado.
     return result;
   }
 
-  // Ejecuta una consulta SQL de lectura con parámetros opcionales.
-  async query(sql: string, values: SqlValue[] = []): Promise<capSQLiteValues> {
-    // Garantiza una conexión abierta antes de consultar.
+  async query(sql: string, values: SqlValue[] = []) {
     const database = await this.getOpenedConnection();
-    // Devuelve el resultado de la consulta.
     return database.query(sql, values);
   }
 
-  // Obtiene todas las categorías ordenadas alfabéticamente.
-  async getCiclos(): Promise<Ciclo[]> {
-    // Ejecuta SELECT de categorías solicitando columnas relevantes.
-    const result = await this.query(
-      // Consulta SQL para leer categorías.
-      'SELECT id, name, description FROM categories ORDER BY name ASC;',
-    );
-    // Retorna el arreglo de filas o un arreglo vacío si no hay resultados.
-    return (result.values ?? []) as Ciclo[];
-  }
-
-  // Obtiene todos los ingredientes ordenados alfabéticamente.
-  async getLecturas(): Promise<Lectura[]> {
-    // Ejecuta SELECT sobre la tabla de ingredientes.
-    const result = await this.query('SELECT id, name FROM ingredients ORDER BY name ASC;');
-    // Convierte y retorna los datos tipados.
-    return (result.values ?? []) as Lectura[];
-  }
-
-  // Obtiene todas las recetas ordenadas alfabéticamente por nombre.
-  async getPerdidas(): Promise<Perdidas[]> {
-    // Ejecuta SELECT incluyendo alias para mapear time_required a timeRequired.
-    const result = await this.query(
-      // Consulta SQL para recuperar recetas.
-      'SELECT id, name, subtitle, description, instructions, time_required AS timeRequired FROM recipes ORDER BY id DESC;',
-    );
-    // Retorna arreglo tipado de recetas.
-    return (result.values ?? []) as Perdidas[];
-  }
-  // Obtiene todas las recetas ordenadas alfabéticamente por nombre.
-  async getMacromedidor(): Promise<MacroMedidor[]> {
-    // Ejecuta SELECT incluyendo alias para mapear time_required a timeRequired.
-    const result = await this.query(
-      // Consulta SQL para recuperar recetas.
-      'SELECT id, name, subtitle, description, instructions, time_required AS timeRequired FROM recipes ORDER BY id DESC;',
-    );
-    // Retorna arreglo tipado de recetas.
-    return (result.values ?? []) as MacroMedidor[];
-  }
-  // Obtiene todas las recetas ordenadas alfabéticamente por nombre.
-  async getusuario(): Promise<Usuario[]> {
-    // Ejecuta SELECT incluyendo alias para mapear time_required a timeRequired.
-    const result = await this.query(
-      // Consulta SQL para recuperar recetas.
-      'SELECT id, name, subtitle, description, instructions, time_required AS timeRequired FROM recipes ORDER BY id DESC;',
-    );
-    // Retorna arreglo tipado de recetas.
-    return (result.values ?? []) as Usuario[];
-  }
-
-  // Crea un macromedidor nueva en la base de datos y retorna su id generado.
-  async createMacromedidor(input: MacroMedidor): Promise<number> {
-    // Normaliza el nombre y valida que exista contenido mínimo.
-    const name = (input.getNombre ?? '');
-
-    // Si el nombre es vacío, lanza error de validación.
-    if (!name) {
-      throw new Error('El nombre de la receta es obligatorio');
-    }
-
-    // Inserta la receta usando parámetros para evitar interpolación manual.
-    const result = await this.run(
-      'INSERT INTO macromedidores (id_macro_medidor, subtitle, description, instructions, time_required) VALUES (?, ?, ?, ?, ?);',
-      [
-        input.getSigCoord() || null,
-        input.getIdMacroMedidor() || null,
-        input.getIdCiclo() || null,
-        input.getNombre() || null,
-        input.getDireccion() || null,
-        input.getTipoInstalacion() || null,
-      ],
-    );
-
-    // Obtiene el id insertado si existe, en otro caso retorna 0.
-    return Number(result.changes?.lastId ?? 0);
-  }
-
-  // Actualiza un macromedidor existente en la base de datos y retorna true si hubo cambios.
-  async updateMacromedidor(input: MacroMedidor): Promise<boolean> {
-    // Valida el id de macromedidor a modificar.
-    if (!Number.isInteger(input.getIdMacroMedidor()) || input.getIdMacroMedidor() <= 0) {
-      throw new Error('El id del macromedidor es inválido');
-    }
-
-    // Normaliza el nombre y valida que exista contenido mínimo.
-    const name = (input.getNombre() ?? '').trim();
-
-    // Si el nombre es vacío, lanza error de validación.
-    if (!name) {
-      throw new Error('El nombre del macromedidor es obligatorio');
-    }
-
-    // Ejecuta actualización parametrizada de los campos editables.
-    const result = await this.run(
-      'UPDATE macromedidores SET nombre = ?, subtitle = ?, description = ?, instructions = ?, time_required = ? WHERE id_macro_medidor = ?;',
-      [
-        name,
-        input.getSigCoord() || null,
-        input.getIdCiclo() || null,
-        input.getNombre() || null,
-        input.getDireccion() || null,
-        input.getTipoInstalacion() || null,
-        input.getIdMacroMedidor(),
-      ],
-    );
-
-    // Retorna true cuando al menos una fila fue actualizada.
-    return Number(result.changes?.changes ?? 0) > 0;
-  }
-
-  // Elimina un macro medidor por id y retorna true si se eliminó al menos un registro.
-  async deleteMacromedidor(id: number): Promise<boolean> {
-    // Valida el identificador recibido.
-    if (!Number.isInteger(id) || id <= 0) {
-      throw new Error('El id del macromedidor es inválido');
-    }
-
-    // Ejecuta eliminación parametrizada del macromedidor.
-    const result = await this.run('DELETE FROM macromedidores WHERE id_macro_medidor = ?;', [id]);
-
-    // Retorna true cuando se elimina al menos una fila.
-    return Number(result.changes?.changes ?? 0) > 0;
-  }
-
-  // Crea un ciclo nuevo en la base de datos y retorna su id generado.
-  async createCiclo(input: Ciclo): Promise<number> {
-    // Normaliza el nombre y valida que exista contenido mínimo.
-    const name = (input.getIdCiclo ?? '');
-
-    // Si el nombre es vacío, lanza error de validación.
-    if (!name) {
-      throw new Error('El nombre del ciclo es obligatorio');
-    }
-
-    // Inserta el ciclo usando parámetros para evitar interpolación manual.
-    const result = await this.run(
-      'INSERT INTO ciclos (id_ciclo, descripcion, periodicidad) VALUES (?, ?, ?);',
-      [
-        input.getIdCiclo() || null,
-        input.getDescripcion() || null,
-        input.getPeriodicidad()|| null,
-        
-      ],
-    );
-
-    // Obtiene el id insertado si existe, en otro caso retorna 0.
-    return Number(result.changes?.lastId ?? 0);
-  }
-
-  // Actualiza un ciclo existente en la base de datos y retorna true si hubo cambios.
-  async updateCiclo(input: Ciclo): Promise<boolean> {
-    // Valida el id de ciclo a modificar.
-    if (!Number.isInteger(input.getIdCiclo()) || input.getIdCiclo() <= 0) {
-      throw new Error('El id del ciclo es inválido');
-    }
-
-    // Normaliza el nombre y valida que exista contenido mínimo.
-    const name = (input.getIdCiclo() ?? '');
-
-    // Si el nombre es vacío, lanza error de validación.
-    if (!name) {
-      throw new Error('El nombre del ciclo es obligatorio');
-    }
-
-    // Ejecuta actualización parametrizada de los campos editables.
-    const result = await this.run(
-      'UPDATE macromedidores SET nombre = ?, subtitle = ?, description = ?, instructions = ?, time_required = ? WHERE id_macro_medidor = ?;',
-      [
-        name,
-          input.getIdCiclo() || null,
-        input.getDescripcion() || null,
-        input.getPeriodicidad()|| null,
-      ],
-    );
-
-    // Retorna true cuando al menos una fila fue actualizada.
-    return Number(result.changes?.changes ?? 0) > 0;
-  }
-
-  // Elimina un ciclo por id y retorna true si se eliminó al menos un registro.
-  async deleteCiclo(id: number): Promise<boolean> {
-    // Valida el identificador recibido.
-    if (!Number.isInteger(id) || id <= 0) {
-      throw new Error('El id del ciclo es inválido');
-    }
-
-    // Ejecuta eliminación parametrizada del ciclo.
-    const result = await this.run('DELETE FROM ciclos WHERE id_ciclo = ?;', [id]);
-
-    // Retorna true cuando se elimina al menos una fila.
-    return Number(result.changes?.changes ?? 0) > 0;
-  }
-  // Crea una lectura nueva en la base de datos y retorna su id generado.
-  async createLecturas(input: Lectura): Promise<number> {
-    // Normaliza el nombre y valida que exista contenido mínimo.
-    const name = (input.getIdLectura ?? '');
-
-    // Si el nombre es vacío, lanza error de validación.
-    if (!name) {
-      throw new Error('El nombre de la receta es obligatorio');
-    }
-
-    // Inserta la lectura usando parámetros para evitar interpolación manual.
-    const result = await this.run(
-      'INSERT INTO lecturas (id_lectura, valor_lectura, fecha_lectura, novedad_estado, id_macro_foto, id_usuario) VALUES (?, ?, ?, ?, ?, ?);',
-      [
-        input.getIdLectura() || null,
-        input.getValorLectura() || null,
-        input.getFechaLectura() || null,
-        input.getNovedadEstado() || null,
-        input.getIdMacroFoto() || null,
-        input.getIdUsuario() || null,
-      ],
-    );
-
-    // Obtiene el id insertado si existe, en otro caso retorna 0.
-    return Number(result.changes?.lastId ?? 0);
-  }
-
-  // Actualiza un Lectura existente en la base de datos y retorna true si hubo cambios.
-  async updateLecturas(input: Lectura): Promise<boolean> {
-    // Valida el id de La lectura a modificar.
-    if (!Number.isInteger(input.getIdLectura()) || input.getIdLectura() <= 0) {
-      throw new Error('El id de la lectura es inválido');
-    }
-
-    // Normaliza el nombre y valida que exista contenido mínimo.
-    const name = (input.getIdLectura() ?? '');
-
-    // Si el nombre es vacío, lanza error de validación.
-    if (!name) {
-      throw new Error('El nombre de la lectura es obligatorio');
-    }
-
-    // Ejecuta actualización parametrizada de los campos editables.
-    const result = await this.run(
-      'UPDATE macromedidores SET nombre = ?, subtitle = ?, description = ?, instructions = ?, time_required = ? WHERE id_macro_medidor = ?;',
-      [
-        name,
-         input.getIdLectura() || null,
-        input.getValorLectura() || null,
-        input.getFechaLectura() || null,
-        input.getNovedadEstado() || null,
-        input.getIdMacroFoto() || null,
-        input.getIdUsuario() || null,
-      ],
-    );
-
-    // Retorna true cuando al menos una fila fue actualizada.
-    return Number(result.changes?.changes ?? 0) > 0;
-  }
-
-  // Elimina una lectura por id y retorna true si se eliminó al menos un registro.
-  async deleteLecturas(id: number): Promise<boolean> {
-    // Valida el identificador recibido.
-    if (!Number.isInteger(id) || id <= 0) {
-      throw new Error('El id de la lectura es inválido');
-    }
-
-    // Ejecuta eliminación parametrizada de la lectura.
-    const result = await this.run('DELETE FROM lecturas WHERE id_lectura = ?;', [id]);
-
-    // Retorna true cuando se elimina al menos una fila.
-    return Number(result.changes?.changes ?? 0) > 0;
-  }
-  // Crea un Perdida nueva en la base de datos y retorna su id generado.
-  async createPerdidas(input: MacroMedidor): Promise<number> {
-    // Normaliza el nombre y valida que exista contenido mínimo.
-    const name = (input.getNombre ?? '');
-
-    // Si el nombre es vacío, lanza error de validación.
-    if (!name) {
-      throw new Error('El nombre de la receta es obligatorio');
-    }
-
-    // Inserta la perdida usando parámetros para evitar interpolación manual.
-    const result = await this.run(
-      'INSERT INTO perdidas (id_perdida, subtitle, description, instructions, time_required) VALUES (?, ?, ?, ?, ?);',
-      [
-        input.getSigCoord() || null,
-        input.getIdMacroMedidor() || null,
-        input.getIdCiclo() || null,
-        input.getNombre() || null,
-        input.getDireccion() || null,
-        input.getTipoInstalacion() || null,
-      ],
-    );
-
-    // Obtiene el id insertado si existe, en otro caso retorna 0.
-    return Number(result.changes?.lastId ?? 0);
-  }
-
-  // Actualiza una perdida existente en la base de datos y retorna true si hubo cambios.
-  async updatePerdidas(input: MacroMedidor): Promise<boolean> {
-    // Valida el id de la perdida a modificar.
-    if (!Number.isInteger(input.getIdMacroMedidor()) || input.getIdMacroMedidor() <= 0) {
-      throw new Error('El id de la perdida es inválido');
-    }
-
-    // Normaliza el nombre y valida que exista contenido mínimo.
-    const name = (input.getNombre() ?? '').trim();
-
-    // Si el nombre es vacío, lanza error de validación.
-    if (!name) {
-      throw new Error('El nombre de la perdida es obligatorio');
-    }
-
-    // Ejecuta actualización parametrizada de los campos editables.
-    const result = await this.run(
-      'UPDATE perdidas SET nombre = ?, subtitle = ?, description = ?, instructions = ?, time_required = ? WHERE id_perdida = ?;',
-      [
-        name,
-        input.getSigCoord() || null,
-        input.getIdCiclo() || null,
-        input.getNombre() || null,
-        input.getDireccion() || null,
-        input.getTipoInstalacion() || null,
-        input.getIdMacroMedidor(),
-      ],
-    );
-
-    // Retorna true cuando al menos una fila fue actualizada.
-    return Number(result.changes?.changes ?? 0) > 0;
-  }
-
-  // Elimina un perdida por id y retorna true si se eliminó al menos un registro.
-  async deletePerdidas(id: number): Promise<boolean> {
-    // Valida el identificador recibido.
-    if (!Number.isInteger(id) || id <= 0) {
-      throw new Error('El id de la perdida es inválido');
-    }
-
-    // Ejecuta eliminación parametrizada de la perdida.
-    const result = await this.run('DELETE FROM perdidas WHERE id_perdida = ?;', [id]);
-
-    // Retorna true cuando se elimina al menos una fila.
-    return Number(result.changes?.changes ?? 0) > 0;
-  }
-
-  // Crea un usuario nuevo en la base de datos y retorna su id generado.
-  async createUsuario(input: MacroMedidor): Promise<number> {
-    // Normaliza el nombre y valida que exista contenido mínimo.
-    const name = (input.getNombre ?? '');
-
-    // Si el nombre es vacío, lanza error de validación.
-    if (!name) {
-      throw new Error('El nombre de la receta es obligatorio');
-    }
-
-    // Inserta el usuario usando parámetros para evitar interpolación manual.
-    const result = await this.run(
-      'INSERT INTO usuarios (id_usuario, subtitle, description, instructions, time_required) VALUES (?, ?, ?, ?, ?);',
-      [
-        input.getSigCoord() || null,
-        input.getIdMacroMedidor() || null,
-        input.getIdCiclo() || null,
-        input.getNombre() || null,
-        input.getDireccion() || null,
-        input.getTipoInstalacion() || null,
-      ],
-    );
-
-    // Obtiene el id insertado si existe, en otro caso retorna 0.
-    return Number(result.changes?.lastId ?? 0);
-  }
-
-  // Actualiza un usuario existente en la base de datos y retorna true si hubo cambios.
-  async updateUsuario(input: MacroMedidor): Promise<boolean> {
-    // Valida el id de usuario a modificar.
-    if (!Number.isInteger(input.getIdMacroMedidor()) || input.getIdMacroMedidor() <= 0) {
-      throw new Error('El id del usuario es inválido');
-    }
-
-    // Normaliza el nombre y valida que exista contenido mínimo.
-    const name = (input.getNombre() ?? '').trim();
-
-    // Si el nombre es vacío, lanza error de validación.
-    if (!name) {
-      throw new Error('El nombre del usuario es obligatorio');
-    }
-
-    // Ejecuta actualización parametrizada de los campos editables.
-    const result = await this.run(
-      'UPDATE usuarios SET nombre = ?, subtitle = ?, description = ?, instructions = ?, time_required = ? WHERE id_usuario = ?;',
-      [
-        name,
-        input.getSigCoord() || null,
-        input.getIdCiclo() || null,
-        input.getNombre() || null,
-        input.getDireccion() || null,
-        input.getTipoInstalacion() || null,
-        input.getIdMacroMedidor(),
-      ],
-    );
-
-    // Retorna true cuando al menos una fila fue actualizada.
-    return Number(result.changes?.changes ?? 0) > 0;
-  }
-
-  // Elimina un usuario por id y retorna true si se eliminó al menos un registro.
-  async deleteUsuario(id: number): Promise<boolean> {
-    // Valida el identificador recibido.
-    if (!Number.isInteger(id) || id <= 0) {
-      throw new Error('El id del usuario es inválido');
-    }
-
-    // Ejecuta eliminación parametrizada del usuario.
-    const result = await this.run('DELETE FROM usuarios WHERE id_usuario = ?;', [id]);
-
-    // Retorna true cuando se elimina al menos una fila.
-    return Number(result.changes?.changes ?? 0) > 0;
-  }
-
-  
-  // Devuelve una conexión abierta y válida, inicializando la base si es necesario.
-  private async getOpenedConnection(): Promise<SQLiteDBConnection> {
-    // Si no hay conexión, intenta inicializarla.
-    if (!this.db) {
-      // Llama al flujo de inicialización completo.
-      await this.initializeDatabase();
-    }
-
-    // Si aún no existe conexión tras inicializar, lanza error controlado.
-    if (!this.db) {
-      // Error explícito para facilitar diagnóstico.
-      throw new Error('No fue posible abrir la conexión SQLite');
-    }
-
-    // Verifica que la conexión realmente esté abierta antes de usarla.
-    const isOpen = await this.db.isDBOpen().catch(() => ({ result: false }));
-
-    // Si la conexión está cerrada, intenta reabrirla en caliente.
-    if (!isOpen.result) {
-      try {
-        // Intenta abrir la conexión existente.
-        await this.db.open();
-      } catch (error) {
-        // Si falla, reinicia estado y rehace inicialización completa.
-        console.warn('La conexión SQLite estaba cerrada; se recreará.', error);
-        this.db = null;
-        this.ready$.next(false);
-        await this.initializeDatabase();
-      }
-    }
-
-    // Si tras reintentos aún no hay conexión, corta con error controlado.
-    if (!this.db) {
-      throw new Error('No fue posible reabrir la conexión SQLite');
-    }
-
-    // Retorna la conexión abierta lista para uso.
-    return this.db;
-  }
-
-  // Persiste la base en web con tolerancia a fallos transitorios del store.
-  private async persistWebStore(): Promise<void> {
-    // Si no es web, no requiere persistencia explícita en store.
-    if (Capacitor.getPlatform() !== 'web') {
-      // Sale sin realizar acciones adicionales.
-      return;
-    }
-
-    try {
-      // Intenta guardar la base en IndexedDB.
-      await this.sqlite.saveToStore(this.dbName);
-    } catch (error) {
-      // Registra advertencia y reintenta tras reabrir el store web.
-      console.warn('saveToStore falló; se reintentará tras initWebStore.', error);
-      // Reinicializa el store web por si perdió estado interno.
-      await CapacitorSQLite.initWebStore().catch(() => undefined);
-
-      // Segundo intento de persistencia.
-      await this.sqlite.saveToStore(this.dbName).catch((retryError) => {
-        // Si vuelve a fallar, se registra y se continúa para no romper el flujo UI.
-        console.error('No se pudo persistir la base en web store.', retryError);
-      });
-    }
-  }
-
-  // Crea todas las tablas y relaciones necesarias del esquema de datos.
-  private async createSchema(): Promise<void> {
-    // Obtiene la conexión activa para ejecutar DDL.
-    const database = await this.getOpenedConnection();
-    // Define un listado de sentencias SQL de creación de esquema.
-    const statements = [
-      // Activa las restricciones de llaves foráneas en SQLite.
-      'PRAGMA foreign_keys = ON;',
-      // Sentencia para crear tabla de ciclos.
-      `
-      CREATE TABLE IF NOT EXISTS ciclos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL UNIQUE,
-        description TEXT
-      );
-      `,
-      // Sentencia para crear tabla de Lectura.
-      `
-      CREATE TABLE IF NOT EXISTS lectura (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL UNIQUE,
-        description TEXT,
-        valor_lectura REAL,
-        fecha_lectura datetime,
-        novedad_estado TEXT,
-        id_macro_foto INTEGER,
-        id_usuario INTEGER,
-        id_macromedidor INTEGER,
-        FOREIGN KEY (id_macromedidor) REFERENCES macromedidor(id) ON DELETE SET NULL
-
-      );
-      `,
-      // Sentencia para crear tabla de macromedidor.
-      `
-      CREATE TABLE IF NOT EXISTS macromedidor (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL UNIQUE,
-        description TEXT,
-        id_ciclo INTEGER,
-        FOREIGN KEY (id_ciclo) REFERENCES ciclos(id) ON DELETE SET NULL
-      );
-      `,
-      // Sentencia para crear tabla de usuarios.
-      `
-      CREATE TABLE IF NOT EXISTS usuarios (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombre TEXT NOT NULL,
-        rol TEXT NOT NULL,
-        usuario TEXT NOT NULL UNIQUE,
-        contrasena TEXT NOT NULL
-      );
-      `,
-      // Sentencia para crear tabla de perdidas.
-      `
-      CREATE TABLE IF NOT EXISTS perdidas (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL UNIQUE,
-        description TEXT
-      );
-      `,
-
-       // Sentencia para crear tabla intermedia perdidas-ciclo (muchos a muchos).
-      `
-      CREATE TABLE IF NOT EXISTS ciclo_perdidas (
-        ciclo_id INTEGER NOT NULL,
-        perdida_id INTEGER NOT NULL,
-        macromedidor_id INTEGER NOT NULL,
-        PRIMARY KEY (ciclo_id, perdida_id, macromedidor_id),
-        FOREIGN KEY (ciclo_id) REFERENCES ciclos(id) ON DELETE CASCADE,
-        FOREIGN KEY (perdida_id) REFERENCES perdidas(id) ON DELETE CASCADE,
-        FOREIGN KEY (macromedidor_id) REFERENCES macromedidor(id) ON DELETE CASCADE
-      );
-      `,
-    ];
-
-    // Ejecuta todas las sentencias de esquema en una sola operación.
-    await database.execute(statements.join('\n'));
-
-    // Asegura columnas nuevas en instalaciones que ya tenían la tabla recipes creada previamente.
-    await this.ensureRecipeColumns();
-  }
-
-  // Agrega columnas faltantes en recipes para mantener compatibilidad con versiones anteriores.
-  private async ensureRecipeColumns(): Promise<void> {
-    // Consulta metadatos de columnas existentes en la tabla recipes.
-    const columnsResult = await this.query('PRAGMA table_info(recipes);');
-    // Convierte las columnas en un conjunto para verificar existencia rápidamente.
-    const existingColumns = new Set(
-      (columnsResult.values ?? []).map((column) => String(column.name)),
-    );
-
-    // Si no existe la columna subtitle, la agrega.
-    if (!existingColumns.has('subtitle')) {
-      await this.run('ALTER TABLE recipes ADD COLUMN subtitle TEXT;');
-    }
-
-    // Si no existe la columna description, la agrega.
-    if (!existingColumns.has('description')) {
-      await this.run('ALTER TABLE recipes ADD COLUMN description TEXT;');
-    }
-  }
-
-  // Inserta datos base iniciales para evitar tablas vacías en la primera ejecución.
-  private async seedBaseData(): Promise<void> {
-    // Consulta cuántas categorías existen actualmente.
-    const countResult = await this.query('SELECT COUNT(*) as total FROM categories;');
-    // Convierte el resultado a número usando 0 como valor por defecto.
-    const totalCategories = Number(countResult.values?.[0]?.total ?? 0);
-
-    // Si ya hay categorías cargadas, no inserta datos duplicados.
-    if (totalCategories > 0) {
-      // Sale del método cuando no se requiere semilla inicial.
-      return;
-    }
-
-    // Recorre el catálogo de categorías predefinidas.
-    for (const categoryName of this.defaultCategories) {
-      // Inserta cada categoría con descripción nula por defecto.
-      await this.run(
-        // SQL de inserción parametrizada para prevenir errores de formato.
-        'INSERT INTO categories (name, description) VALUES (?, ?);',
-        // Valores asociados a los placeholders de la sentencia.
-        [categoryName, null],
-      );
-    }
+  private async getOpenedConnection() {
+    if (!this.initializingPromise) await this.initializeDatabase();
+    await this.initializingPromise;
+    if (!this.db || !(await this.db.isDBOpen()).result) await this.db?.open();
+    return this.db!;
   }
 }

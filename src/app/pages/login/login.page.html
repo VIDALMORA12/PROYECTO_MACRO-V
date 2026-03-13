@@ -1,36 +1,58 @@
-<ion-content>
-  <div class="login-wrapper">
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Iniciar Sesión</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="login-container">
+    <div class="logo-section">
+      <ion-icon name="water-outline" size="large"></ion-icon>
+      <h2>Sistema de Lecturas</h2>
+    </div>
+
     <ion-card>
-      <ion-card-header class="ion-text-center">
-        <ion-card-title>Login de Personal</ion-card-title>
-      </ion-card-header>
-
       <ion-card-content>
-        <ion-item lines="full">
-          <ion-icon name="person-outline" slot="start"></ion-icon>
-          <ion-input label="Nombre" labelPlacement="stacked" [(ngModel)]="user.nombre"></ion-input>
+        <ion-item>
+          <ion-label position="floating">Usuario</ion-label>
+          <ion-input
+            type="text"
+            [(ngModel)]="usuario"
+            placeholder="Ingrese su usuario"
+            clearInput>
+          </ion-input>
         </ion-item>
 
-        <ion-item lines="full">
-          <ion-icon name="build-outline" slot="start"></ion-icon>
-          <ion-select label="Rol de Trabajo" labelPlacement="stacked" [(ngModel)]="user.rol">
-            <ion-select-option value="Ingeniero">Ingeniero</ion-select-option>
-            <ion-select-option value="Operativo">Operativo</ion-select-option>
-          </ion-select>
+        <ion-item>
+          <ion-label position="floating">Contraseña</ion-label>
+          <ion-input
+            [type]="mostrarPassword ? 'text' : 'password'"
+            [(ngModel)]="contrasena"
+            placeholder="Ingrese su contraseña">
+          </ion-input>
+          <ion-button fill="clear" slot="end" (click)="togglePassword()">
+            <ion-icon [name]="mostrarPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </ion-button>
         </ion-item>
 
-        <ion-item lines="full">
-          <ion-icon name="person-outline" slot="start"></ion-icon>
-          <ion-input label="ID Usuario" labelPlacement="stacked" [(ngModel)]="user.usuario"></ion-input>
-        </ion-item>
+        <div class="error-message" *ngIf="errorMsg">
+          <ion-text color="danger">{{ errorMsg }}</ion-text>
+        </div>
 
-        <ion-item lines="full">
-          <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
-          <ion-input type="password" label="Contraseña" labelPlacement="stacked" [(ngModel)]="user.contrasena"></ion-input>
-        </ion-item>
+        <ion-button
+          expand="block"
+          class="ion-margin-top"
+          (click)="login()"
+          [disabled]="cargando">
+          <ion-spinner *ngIf="cargando" name="crescent"></ion-spinner>
+          <span *ngIf="!cargando">Ingresar</span>
+        </ion-button>
 
-        <ion-button expand="block" (click)="onLogin()" class="ion-margin-top" shape="round">
-          Iniciar Sesión
+        <ion-button
+          expand="block"
+          fill="clear"
+          routerLink="/registro">
+          ¿No tienes cuenta? Regístrate
         </ion-button>
       </ion-card-content>
     </ion-card>

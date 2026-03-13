@@ -1,27 +1,67 @@
-<<<<<<< HEAD
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>ciclo</ion-title>
+  <ion-toolbar color="primary">
+    <ion-title>Monitoreo de Ciclos - Macro-V</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">ciclo</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="ion-padding">
+  
+  <div class="contenedor-principal">
+    <div class="chart-box">
+      <canvas #pieCanvas></canvas>
+    </div>
+  </div>
+
+  <hr class="divisor">
+
+  <h2 class="ion-text-center">Rutas de Lectura</h2>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="6" size-md="4" *ngFor="let item of listaUnidadesLectura">
+        <ion-card (click)="seleccionarCiclo(item.id, item.nombre)" 
+                  [class.card-zona]="item.tipo === 'Zona'"
+                  class="card-ruta">
+          <ion-card-header class="ion-text-center">
+            <ion-icon [name]="item.tipo === 'Zona' ? 'map-outline' : 'repeat-outline'" size="large"></ion-icon>
+            <ion-card-title>{{ item.nombre }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content class="ion-text-center">
+            <ion-button fill="clear" color="danger">VER TABLA</ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <div *ngIf="cicloSeleccionado" class="tabla-container animate__animated animate__fadeIn">
+    <div class="header-tabla">
+      <h3>Resumen Detallado: {{ nombreUnidadSeleccionada }}</h3>
+      <ion-button fill="outline" size="small" (click)="cicloSeleccionado = null">Cerrar</ion-button>
+    </div>
+    
+    <div style="overflow-x: auto;">
+      <table class="tabla-excel">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Macro-medidor</th>
+            <th>Ant.</th>
+            <th>Act.</th>
+            <th>Dif.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of medidoresFiltrados">
+            <td>{{ m.id }}</td>
+            <td>{{ m.nombre }}</td>
+            <td>{{ m.lecturaAnterior }}</td>
+            <td>{{ m.lecturaActual }}</td>
+            <td [class.error]="m.lecturaActual < m.lecturaAnterior">
+              {{ m.lecturaActual > 0 ? (m.lecturaActual - m.lecturaAnterior) : '---' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </ion-content>
-=======
-
-
-<ion-header [translucent]="true">
-  <ion-toolbar> 
-    <ion-title>ciclo</ion-title>
-  </ion-toolbar>
-  <div id="main" style="width: 300PX; height: 400px;"></div>
-</ion-header>
-
-
-
->>>>>>> origin/main
