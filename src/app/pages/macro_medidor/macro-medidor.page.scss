@@ -1,91 +1,88 @@
-// Fondo principal azul
-ion-content {
-  --background: #547cf5;
+.fondo-gris {
+  --background: #f4f5f8;
 }
 
-// Estilo de la tarjeta de consumo principal (Blanca para contrastar)
-.totalizador-ingeniero {
-  margin: 15px 0;
-  border-radius: 15px;
-  background: rgb(223, 223, 223); // Fondo blanco para que resalte sobre el azul
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-
-  ion-label {
-    font-size: 0.8rem;
-    letter-spacing: 1px;
-    color: #000000;
-  }
-
-  .consumo-valor {
-    margin: 5px 0 0 0;
-    font-size: 2.2rem;
-    // Mantenemos el rojo para el valor, o puedes usar el mismo azul: color: #547cf5 !important;
-  }
-}
-
-// Títulos del historial (Texto blanco para que se vea sobre el azul)
-.header-control {
+.loading-container {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 15px;
-
-  h2 {
-    font-weight: bold;
-    color: rgb(230, 1, 1); // Texto blanco
-    margin: 0;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-  }
+  margin-top: 50px;
+  p { color: #666; margin-top: 10px; }
 }
 
-// Contenedor de la tabla
-.tabla-scroll {
-  border-radius: 15px;
-  background: rgb(104, 119, 253); // La tabla debe ser blanca por dentro para lectura clara
-  overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+.btn-excel {
+  --background: #1d6f42; // Color Verde Excel
+  --border-radius: 5px;
+  font-weight: bold;
 }
 
-.tabla-historial {
+.table-responsive {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  overflow-x: auto;
+}
+
+.excel-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
+  min-width: 800px;
 
-  thead {
-    background-color: #9297d6; // Un gris azulado muy suave
+  th {
+    background: #d32f2f; // Rojo Aguas de Manizales
+    color: white;
+    padding: 15px;
+    text-align: left;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+  }
+
+  td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+  }
+
+  .fila-alerta {
+    background-color: #fff5f5; // Fondo rojizo suave para problemas
+  }
+
+  .nombre-bold { font-weight: bold; color: #333; }
+  .valor-suma { font-weight: bold; color: #d32f2f; background: #fffafa; }
+
+  .chip-ciclo {
+    background: #e0e0e0;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+  }
+
+  // Estilos de los Badges
+  .badge-estado {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    display: inline-block;
     
-    th {
-      padding: 15px;
-      color: #000000;
-      font-weight: 700;
-      text-transform: uppercase;
-      font-size: 0.75rem;
-    }
+    &.estado-bueno { background: #c8e6c9; color: #2e7d32; }
+    &.estado-inundado { background: #ffcdd2; color: #c62828; border: 1px solid #ef9a9a; }
+    &.estado-dañado { background: #fff9c4; color: #f57f17; }
   }
 
-  tbody {
-    tr {
-      border-bottom: 1px solid #f5eded;
-
-      &:last-child {
-        border-bottom: none;
-      }
-    }
-
-    td {
-      padding: 12px 15px;
-      color: #444;
-    }
+  .obs-text {
+    font-style: italic;
+    color: #777;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-}
-
-// Spinner cargando (Blanco para que se vea sobre el azul)
-.ion-text-center {
-  p {
-    color: rgb(5, 255, 26);
-    font-weight: 500;
-  }
-  ion-spinner {
-    --color: rgb(30, 238, 58) !important;
+    .foto-evidencia {
+    border-radius: 8px;
+    margin-top: 10px;
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
   }
 }

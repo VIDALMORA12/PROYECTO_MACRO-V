@@ -11,10 +11,15 @@ import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/stan
   imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
 })
 export class UsuarioPage implements OnInit {
+  datosUsuario: any = null;
 
   constructor() { }
 
   ngOnInit() {
+    // Recuperamos los datos que guardamos en el login
+    const session = localStorage.getItem('usuarioActivo');
+    if (session) {
+      this.datosUsuario = JSON.parse(session);
+    }
   }
-
 }

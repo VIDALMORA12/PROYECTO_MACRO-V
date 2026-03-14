@@ -1,16 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import {
-  IonContent, IonHeader, IonTitle, IonToolbar,
-  IonCard, IonCardContent, IonItem, IonLabel,
-  IonInput, IonButton, IonIcon, IonSpinner, IonText,
-  IonSelect, IonSelectOption, IonButtons, IonBackButton,
-  ToastController, AlertController
-} from '@ionic/angular/standalone';
+import { Router, RouterModule } from '@angular/router';
+import { IonicModule, ToastController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { eyeOutline, eyeOffOutline, personAddOutline } from 'ionicons/icons';
+import { eyeOutline, eyeOffOutline, personAddOutline, arrowBackOutline } from 'ionicons/icons';
 import { Database } from '../../services/database';
 
 @Component({
@@ -18,89 +12,56 @@ import { Database } from '../../services/database';
   templateUrl: './registro.page.html',
   styleUrls: ['./registro.page.scss'],
   standalone: true,
-  imports: [
-    CommonModule, FormsModule,
-    IonContent, IonHeader, IonTitle, IonToolbar,
-    IonCard, IonCardContent, IonItem, IonLabel,
-    IonInput, IonButton, IonIcon, IonSpinner, IonText,
-    IonSelect, IonSelectOption, IonButtons, IonBackButton
-  ]
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule]
 })
-export class RegistroPage implements OnInit {
+export class RegistroPage {
   nombre = '';
   usuario = '';
   rol = '';
   contrasena = '';
   confirmarContrasena = '';
-  mostrarPassword = false;
   cargando = false;
   errorMsg = '';
+  mostrarPassword = false;
 
-  constructor(
-    private db: Database,
-    private router: Router,
-    private toastCtrl: ToastController,
-    private alertCtrl: AlertController
-  ) {
-    addIcons({ eyeOutline, eyeOffOutline, personAddOutline });
+  constructor(private db: Database, private router: Router, private toastCtrl: ToastController) {
+    addIcons({ eyeOutline, eyeOffOutline, personAddOutline, arrowBackOutline });
   }
 
-  async ngOnInit() {
-    // Aseguramos que la base de datos esté lista al entrar
-    await this.db.initializeDatabase();
-  }
+  togglePassword() { this.mostrarPassword = !this.mostrarPassword; }
 
-  togglePassword() {
-    this.mostrarPassword = !this.mostrarPassword;
-  }
-
-    async registrar() {
+  async registrar() {
     this.errorMsg = '';
-
-    // 1. Validaciones
-    if (!this.nombre.trim() || !this.usuario.trim() || !this.rol || !this.contrasena) {
-      this.errorMsg = 'Por favor complete todos los campos.';
+    if (!this.nombre || !this.usuario || !this.rol || !this.contrasena) {
+      this.errorMsg = 'Complete todos los campos.';
       return;
     }
-
     if (this.contrasena !== this.confirmarContrasena) {
       this.errorMsg = 'Las contraseñas no coinciden.';
       return;
     }
 
-    this.cargando = true;
-
+    this.cargando = true; //
     try {
-      // 2. Creamos el objeto con los datos
-      const nuevoUsuario = {
-        nombre: this.nombre.trim(),
+      await this.db.ensureConnection();
+      const creado = await this.db.registrarUsuario({
+        nombre: this.nombre,
         rol: this.rol,
         usuario: this.usuario.trim(),
         contrasena: this.contrasena
-      };
-
-      // 3. LLAMADA AL SERVICIO (Aquí estaba el error)
-      // Usamos 'this.db' para acceder al servicio y ejecutamos el método
-      const creado = await this.db.registrarUsuario(nuevoUsuario);
+      });
 
       if (creado) {
-        const toast = await this.toastCtrl.create({
-          message: 'Cuenta creada exitosamente.',
-          duration: 2000,
-          color: 'success'
-        });
+        const toast = await this.toastCtrl.create({ message: 'Usuario creado', duration: 2000, color: 'success' });
         await toast.present();
         this.router.navigate(['/login']);
+      } else {
+        this.errorMsg = 'El usuario ya existe.';
       }
-
-    } catch (error: any) {
-      // Si el usuario ya existe, el 'UNIQUE' de la base de datos lanzará un error aquí
-      this.errorMsg = 'Error: El nombre de usuario ya existe o no se pudo conectar.';
-      console.error(error);
+    } catch (e) {
+      this.errorMsg = 'Error al registrar.';
     } finally {
-      this.cargando = false;
+      this.cargando = false; // Quita el spinner incluso si falla el registro
     }
   }
-
-  
 }

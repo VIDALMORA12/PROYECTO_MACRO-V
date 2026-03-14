@@ -47,7 +47,7 @@
   </div>
 
   <div *ngIf="paso === 3" class="animate__animated animate__fadeIn">
-    <ion-card>
+    <ion-card mode="ios">
       <ion-card-header color="light">
         <ion-card-subtitle>TOMANDO LECTURA</ion-card-subtitle>
         <ion-card-title>{{ medidorSeleccionado?.nombre }}</ion-card-title>
@@ -66,6 +66,11 @@
             <ion-select-option value="Inundado">Inundado</ion-select-option>
             <ion-select-option value="Dañado">Dañado</ion-select-option>
           </ion-select>
+        </ion-item>
+
+        <ion-item class="ion-margin-top">
+          <ion-label position="stacked">Observaciones</ion-label>
+          <ion-input [(ngModel)]="registro.observacion" placeholder="Opcional..."></ion-input>
         </ion-item>
 
         <ion-button expand="block" fill="outline" color="danger" (click)="tomarFoto()" class="ion-margin-top">

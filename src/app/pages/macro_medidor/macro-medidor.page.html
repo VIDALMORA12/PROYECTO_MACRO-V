@@ -1,65 +1,68 @@
-<ion-header shadow="none">
-  <ion-toolbar color="danger">
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary"> 
     <ion-title>Control de Macromedidores</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="exportarExcel()" class="btn-excel">
+        <ion-icon slot="start" name="download-outline"></ion-icon>
+        Exportar Excel
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content class="ion-padding fondo-gris">
 
-  <div *ngIf="cargando" class="ion-text-center ion-padding">
+  <div *ngIf="cargando" class="loading-container">
     <ion-spinner name="crescent" color="danger"></ion-spinner>
-    <p>Buscando ciclos en Aguas de Manizales...</p>
+    <p>Consultando Base de Datos...</p>
   </div>
 
-  <div *ngIf="!cargando">
-    <div *ngFor="let ciclo of dashboard">
-      <ion-card class="totalizador-ingeniero">
-        <ion-card-content class="ion-text-center">
-          <ion-label>TOTAL CONSUMO {{ ciclo.name }}</ion-label>
-          <h1 class="consumo-valor" style="color: #eb445a; font-weight: bold;">
-            {{ ciclo.totalConsumo | number }} m³
-          </h1>
-        </ion-card-content>
-      </ion-card>
-    </div>
+  <div class="table-responsive" *ngIf="!cargando && historialMedidores.length > 0">
+    <table class="excel-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Ciclo</th>
+          <th>Macromedidor</th>
+          <th>Anterior</th>
+          <th>Actual</th>
+          <th>Suma Total</th>
+          <th>Foto</th> <th>Estado</th>
+          <th>Observaciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of historialMedidores" [ngClass]="{'fila-alerta': m.estado !== 'Bueno'}">
+          <td class="text-small">{{ m.fecha }}</td>
+          <td><span class="chip-ciclo">{{ m.ciclo }}</span></td>
+          <td class="nombre-bold">{{ m.nombre }}</td>
+          <td class="valor">{{ m.lectura_anterior }}</td>
+          <td class="valor">{{ m.lectura_actual }}</td>
+          <td class="valor-suma">{{ m.suma_total }}</td>
 
-    <div class="header-control ion-margin-top">
-      <h2 style="display: inline-block;">Historial General</h2>
-      <ion-button color="success" (click)="exportarExcel()" style="float: right;">
-        <ion-icon name="document-text-outline" slot="start"></ion-icon> EXCEL
-      </ion-button>
-    </div>
+          <td (click)="verEvidencia(m.foto_path)" class="ion-text-center">
+            <ion-icon *ngIf="m.foto_path" name="camera" color="primary" style="font-size: 20px;"></ion-icon>
+            <ion-icon *ngIf="!m.foto_path" name="camera-outline" color="medium" style="font-size: 20px;"></ion-icon>
+          </td>
 
-    <div class="tabla-scroll" style="overflow-x: auto; clear: both;">
-      <table class="tabla-historial">
-        <thead>
-          <tr>
-            <th>Macro-medidor</th>
-            <th>Lectura</th>
-            <th>Fecha</th>
-            <th>Estado</th>
-            <th>Evidencia</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let m of historialMedidores">
-            <td><strong>{{ m.nombre }}</strong></td>
-            <td [style.color]="m.valor_lectura ? 'black' : 'red'">
-              {{ m.valor_lectura ? m.valor_lectura + ' m³' : '--- hace falta' }}
-            </td>
-            <td>{{ m.fecha_lectura ? (m.fecha_lectura | date:'dd/MM/yy') : 'Pendiente' }}</td>
-            <td>
-              <ion-badge [color]="m.valor_lectura ? 'success' : 'danger'">
-                {{ m.estado || 'Faltante' }}
-              </ion-badge>
-            </td>
-            <td>
-              <ion-icon *ngIf="m.foto" name="image-outline" color="warning" size="large"></ion-icon>
-              <span *ngIf="!m.foto">No</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+          <td>
+            <span class="badge-estado" [ngClass]="{
+              'estado-bueno': m.estado === 'Bueno',
+              'estado-inundado': m.estado === 'Inundado',
+              'estado-dañado': m.estado === 'Dañado' || m.estado === 'Obstruido'
+            }">
+              {{ m.estado }}
+            </span>
+          </td>
+          <td class="obs-text">{{ m.observacion }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
+
+  <div *ngIf="!cargando && historialMedidores.length === 0" class="no-data">
+    <ion-icon name="document-text-outline"></ion-icon>
+    <p>No se encontraron lecturas registradas.</p>
+  </div>
+
 </ion-content>

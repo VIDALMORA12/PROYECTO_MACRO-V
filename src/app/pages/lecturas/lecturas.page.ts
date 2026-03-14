@@ -5,7 +5,14 @@ import { IonicModule, ToastController } from '@ionic/angular';
 import { Database } from '../../services/database'; 
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { addIcons } from 'ionicons';
-import { calendarNumberOutline, chevronForward, speedometerOutline, camera, saveOutline, arrowBackOutline } from 'ionicons/icons';
+import { 
+  calendarNumberOutline, 
+  chevronForward, 
+  speedometerOutline, 
+  camera, 
+  saveOutline, 
+  arrowBackOutline 
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-lecturas',
@@ -99,6 +106,7 @@ export class LecturasPage implements OnInit {
   }
 
   async guardarLectura() {
+    // 1. Validaciones de negocio
     if (this.registro.lectura === null) {
       this.mostrarToast('Por favor, ingrese la lectura.');
       return;
@@ -110,26 +118,46 @@ export class LecturasPage implements OnInit {
     }
 
     try {
-      const sql = `INSERT INTO lecturas (id_macromedidor, valor_lectura, estado_encontrado, observacion, foto_path, fecha_lectura) 
-                   VALUES (?, ?, ?, ?, ?, datetime('now', 'localtime'))`;
-      
-      await this.db.run(sql, [
-        this.medidorSeleccionado.nombre, 
-        this.registro.lectura, 
-        this.registro.estado, 
-        this.registro.observacion || '', 
-        this.fotoCapturada || ''
-      ]);
+      await this.db.ensureConnection();
 
-      this.mostrarToast('Registro guardado con éxito.');
-      this.paso = 1;
+      // 2. Preparar el objeto para el nuevo método inteligente del servicio
+      const datosParaGuardar = {
+        id_macromedidor: this.medidorSeleccionado.nombre,
+        ciclo: this.cicloSeleccionado.nombre, // Usamos el nombre del ciclo (Ej: 'Ciclo 1')
+        valor_lectura: this.registro.lectura,
+        estado_encontrado: this.registro.estado,
+        observacion: this.registro.observacion || '',
+        foto_path: this.fotoCapturada || '',
+        fecha_lectura: new Date().toLocaleString() // Fecha formateada localmente
+      };
+      
+      // 3. Llamada al servicio que gestiona la lectura anterior y la suma
+      const exito = await this.db.guardarLecturaCompleta(datosParaGuardar);
+
+      if (exito) {
+        this.mostrarToast('Registro guardado con éxito en Aguas de Manizales.');
+        
+        // 4. Reinicio de la interfaz
+        this.paso = 1;
+        this.fotoCapturada = null;
+        this.registro = { lectura: null, estado: 'Bueno', observacion: '' };
+      } else {
+        throw new Error("No se pudo insertar el registro");
+      }
+      
     } catch (e) {
-      this.mostrarToast('Error al guardar en la base de datos.');
+      console.error("Error al guardar:", e);
+      this.mostrarToast('Error crítico al guardar la lectura.');
     }
   }
 
   async mostrarToast(mensaje: string) {
-    const t = await this.toast.create({ message: mensaje, duration: 2000, position: 'bottom' });
+    const t = await this.toast.create({ 
+      message: mensaje, 
+      duration: 2000, 
+      position: 'bottom',
+      color: mensaje.includes('Error') ? 'danger' : 'dark'
+    });
     await t.present();
   }
 }

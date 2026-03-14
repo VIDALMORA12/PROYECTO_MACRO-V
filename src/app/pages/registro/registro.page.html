@@ -1,67 +1,50 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar color="danger">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref__="/login"></ion-back-button>
+      <ion-back-button defaultHref="/login"></ion-back-button>
     </ion-buttons>
-    <ion-title>Registro</ion-title>
+    <ion-title>Crear Cuenta Macro-V</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-card>
+  <ion-card mode="ios">
     <ion-card-content>
-
-      <ion-item>
-        <ion-label position="floating">Nombre completo</ion-label>
-        <ion-input type="text" [(ngModel)]="nombre" clearInput></ion-input>
+      <ion-item lines="floating">
+        <ion-label position="stacked">Nombre Completo</ion-label>
+        <ion-input [(ngModel)]="nombre" type="text"></ion-input>
       </ion-item>
 
-      <ion-item>
-        <ion-label position="floating">Usuario</ion-label>
-        <ion-input type="text" [(ngModel)]="usuario" clearInput></ion-input>
+      <ion-item lines="floating">
+        <ion-label position="stacked">Usuario (Login)</ion-label>
+        <ion-input [(ngModel)]="usuario" type="text"></ion-input>
       </ion-item>
 
-      <ion-item>
-        <ion-label position="floating">Rol</ion-label>
+      <ion-item lines="floating">
+        <ion-label position="stacked">Rol</ion-label>
         <ion-select [(ngModel)]="rol" placeholder="Seleccione un rol">
-          <ion-select-option value="admin">Administrador</ion-select-option>
-          <ion-select-option value="lecturista">Lecturista</ion-select-option>
-          <ion-select-option value="supervisor">Supervisor</ion-select-option>
+          <ion-select-option value="ingeniero">Ingeniero (Admin)</ion-select-option>
+          <ion-select-option value="operador">Operador</ion-select-option>
         </ion-select>
       </ion-item>
 
-      <ion-item>
-        <ion-label position="floating">Contraseña</ion-label>
-        <ion-input
-          [type]="mostrarPassword ? 'text' : 'password'"
-          [(ngModel)]="contrasena">
-        </ion-input>
-        <ion-button fill="clear" slot="end" (click)="togglePassword()">
-          <ion-icon [name]="mostrarPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
-        </ion-button>
+      <ion-item lines="floating">
+        <ion-label position="stacked">Contraseña</ion-label>
+        <ion-input [type]="mostrarPassword ? 'text' : 'password'" [(ngModel)]="contrasena"></ion-input>
       </ion-item>
 
-      <ion-item>
-        <ion-label position="floating">Confirmar contraseña</ion-label>
-        <ion-input
-          [type]="mostrarPassword ? 'text' : 'password'"
-          [(ngModel)]="confirmarContrasena">
-        </ion-input>
+      <ion-item lines="floating">
+        <ion-label position="stacked">Confirmar Contraseña</ion-label>
+        <ion-input [type]="mostrarPassword ? 'text' : 'password'" [(ngModel)]="confirmarContrasena"></ion-input>
       </ion-item>
 
-      <div class="error-message" *ngIf="errorMsg">
-        <ion-text color="danger">{{ errorMsg }}</ion-text>
-      </div>
+      <p *ngIf="errorMsg" style="color: red;">{{ errorMsg }}</p>
 
-      <ion-button
-        expand="block"
-        class="ion-margin-top"
-        (click)="registrar()"
-        [disabled]="cargando">
-        <ion-spinner *ngIf="cargando" name="crescent"></ion-spinner>
-        <span *ngIf="!cargando">Crear cuenta</span>
+      <ion-button expand="block" color="danger" (click)="registrar()" [disabled]="cargando" style="margin-top: 20px;">
+        <ion-icon slot="start" name="person-add-outline" *ngIf="!cargando"></ion-icon>
+        <ion-spinner *ngIf="cargando"></ion-spinner>
+        Registrar Usuario
       </ion-button>
-
     </ion-card-content>
   </ion-card>
 </ion-content>

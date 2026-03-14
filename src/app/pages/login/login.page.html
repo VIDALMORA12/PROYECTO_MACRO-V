@@ -1,58 +1,33 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>Iniciar Sesión</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="ion-padding">
+<ion-content class="ion-padding ion-text-center">
   <div class="login-container">
-    <div class="logo-section">
-      <ion-icon name="water-outline" size="large"></ion-icon>
-      <h2>Sistema de Lecturas</h2>
-    </div>
+    <ion-icon name="water-outline" color="danger" style="font-size: 80px;"></ion-icon>
+    <h1 style="color: #d32f2f; font-weight: bold;">Macro-V</h1>
+    <p>Gestión de Macromedidores</p>
 
-    <ion-card>
+    <ion-card mode="ios">
       <ion-card-content>
-        <ion-item>
-          <ion-label position="floating">Usuario</ion-label>
-          <ion-input
-            type="text"
-            [(ngModel)]="usuario"
-            placeholder="Ingrese su usuario"
-            clearInput>
-          </ion-input>
+        <ion-item lines="floating">
+          <ion-label position="stacked">Usuario</ion-label>
+          <ion-input [(ngModel)]="usuario" name="usuario" type="text" placeholder="admin"></ion-input>
         </ion-item>
 
-        <ion-item>
-          <ion-label position="floating">Contraseña</ion-label>
-          <ion-input
-            [type]="mostrarPassword ? 'text' : 'password'"
-            [(ngModel)]="contrasena"
-            placeholder="Ingrese su contraseña">
-          </ion-input>
-          <ion-button fill="clear" slot="end" (click)="togglePassword()">
-            <ion-icon [name]="mostrarPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+        <ion-item lines="floating">
+          <ion-label position="stacked">Contraseña</ion-label>
+          <ion-input [type]="mostrarPassword ? 'text' : 'password'" [(ngModel)]="contrasena" name="contrasena"></ion-input>
+          <ion-button slot="end" fill="clear" (click)="togglePassword()" style="margin-top: 15px;">
+            <ion-icon slot="icon-only" [name]="mostrarPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
           </ion-button>
         </ion-item>
 
-        <div class="error-message" *ngIf="errorMsg">
-          <ion-text color="danger">{{ errorMsg }}</ion-text>
-        </div>
+        <p *ngIf="errorMsg" style="color: red; font-size: 14px;">{{ errorMsg }}</p>
 
-        <ion-button
-          expand="block"
-          class="ion-margin-top"
-          (click)="login()"
-          [disabled]="cargando">
+        <ion-button expand="block" color="danger" (click)="login()" [disabled]="cargando" style="margin-top: 20px;">
           <ion-spinner *ngIf="cargando" name="crescent"></ion-spinner>
           <span *ngIf="!cargando">Ingresar</span>
         </ion-button>
 
-        <ion-button
-          expand="block"
-          fill="clear"
-          routerLink="/registro">
-          ¿No tienes cuenta? Regístrate
+        <ion-button expand="block" fill="clear" color="danger" routerLink="/registro">
+          ¿NO TIENES CUENTA? REGÍSTRATE AQUÍ
         </ion-button>
       </ion-card-content>
     </ion-card>
