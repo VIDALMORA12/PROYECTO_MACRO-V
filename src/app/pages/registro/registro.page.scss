@@ -1,0 +1,73 @@
+// Contenedor principal con un fondo suave
+ion-content {
+  --background: #547cf5; // Un gris muy claro para que la tarjeta resalte
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Estilo de la tarjeta de registro
+ion-card {
+  margin: 20px auto;
+  max-width: 500px; // Evita que se vea gigante en pantallas de PC
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(235, 4, 4, 0.815);
+  --background: #547cf5;
+  
+}
+
+ion-card-content {
+  padding: 24px 16px !important;
+}
+
+// Personalización de los campos (items)
+ion-item {
+  --border-radius: 8px;
+  --padding-start: 12px;
+  --highlight-height: 2px;
+  margin-bottom: 12px;
+  --background: #a5bafc; 
+  border: 1px solid #ff0000;
+  border-radius: 10px;
+  
+  // Quita la línea de abajo predeterminada de Ionic para usar nuestro borde
+  &::part(native) {
+    border: none;
+  }
+}
+
+// Estilo para el botón de mostrar/ocultar contraseña
+ion-button[slot="end"] {
+  --color: #ff0202;
+  margin: 0;
+  height: 24px;
+}
+
+// Mensaje de error
+.error-message {
+ background: #aa8ce1;
+ padding: 10px;
+ border-radius: 8px;
+ margin: 10px 0;
+ text-align: center;
+ font-size: 0.9em;
+ font-weight: 500;
+ border: 1px solid #ef0b22;
+}
+
+// Botón principal de registro
+ion-button[expand="block"] {
+  --border-radius: 10px;
+  --box-shadow: 0 4px 10px rgba(var(--ion-color-primary-rgb), 0.3);
+  font-weight: bold;
+  height: 50px;
+  margin-top: 25px;
+  letter-spacing: 0.5px;
+  text-transform: none; // Evita que todo esté en mayúsculas
+}
+
+// Spinner dentro del botón
+ion-spinner {
+  margin-right: 8px;
+}

@@ -1,0 +1,77 @@
+// Fondo principal para toda la página
+ion-content {
+  --background: #547cf5;
+  --overflow: hidden;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 20px;
+}
+
+// Sección del Logo/Título
+.logo-section {
+  text-align: center;
+  color: rgb(255, 1, 1);
+  margin-bottom: 40px;
+
+  ion-icon {
+    font-size: 80px;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+  }
+
+  h2 {
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+}
+
+// Tarjeta de Login (blanca para contraste)
+ion-card {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  margin: 0;
+  padding: 10px;
+  background: rgb(118, 151, 243);
+}
+
+// Campos de texto mejorados
+ion-item {
+  --background: #89a0e9;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ff0000;
+  --highlight-height: 0px; // Quita la línea inferior de Ionic
+
+  ion-label {
+    color: #000000;
+  }
+}
+
+// Botón de ingresar
+ion-button[expand="block"] {
+  --border-radius: 12px;
+  height: 50px;
+  font-weight: bold;
+  margin-top: 10px;
+  font-size: 1rem;
+}
+
+// Mensaje de error
+.error-message {
+  text-align: center;
+  padding: 10px;
+  background: #8583f8;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}

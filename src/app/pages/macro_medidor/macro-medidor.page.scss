@@ -1,0 +1,91 @@
+// Fondo principal azul
+ion-content {
+  --background: #547cf5;
+}
+
+// Estilo de la tarjeta de consumo principal (Blanca para contrastar)
+.totalizador-ingeniero {
+  margin: 15px 0;
+  border-radius: 15px;
+  background: rgb(223, 223, 223); // Fondo blanco para que resalte sobre el azul
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+
+  ion-label {
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    color: #000000;
+  }
+
+  .consumo-valor {
+    margin: 5px 0 0 0;
+    font-size: 2.2rem;
+    // Mantenemos el rojo para el valor, o puedes usar el mismo azul: color: #547cf5 !important;
+  }
+}
+
+// Títulos del historial (Texto blanco para que se vea sobre el azul)
+.header-control {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+
+  h2 {
+    font-weight: bold;
+    color: rgb(230, 1, 1); // Texto blanco
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+  }
+}
+
+// Contenedor de la tabla
+.tabla-scroll {
+  border-radius: 15px;
+  background: rgb(104, 119, 253); // La tabla debe ser blanca por dentro para lectura clara
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.tabla-historial {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+
+  thead {
+    background-color: #9297d6; // Un gris azulado muy suave
+    
+    th {
+      padding: 15px;
+      color: #000000;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #f5eded;
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+
+    td {
+      padding: 12px 15px;
+      color: #444;
+    }
+  }
+}
+
+// Spinner cargando (Blanco para que se vea sobre el azul)
+.ion-text-center {
+  p {
+    color: rgb(5, 255, 26);
+    font-weight: 500;
+  }
+  ion-spinner {
+    --color: rgb(30, 238, 58) !important;
+  }
+}

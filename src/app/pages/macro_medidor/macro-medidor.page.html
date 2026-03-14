@@ -1,13 +1,65 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>macro_medidor</ion-title>
+<ion-header shadow="none">
+  <ion-toolbar color="danger">
+    <ion-title>Control de Macromedidores</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">macro_medidor</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+
+  <div *ngIf="cargando" class="ion-text-center ion-padding">
+    <ion-spinner name="crescent" color="danger"></ion-spinner>
+    <p>Buscando ciclos en Aguas de Manizales...</p>
+  </div>
+
+  <div *ngIf="!cargando">
+    <div *ngFor="let ciclo of dashboard">
+      <ion-card class="totalizador-ingeniero">
+        <ion-card-content class="ion-text-center">
+          <ion-label>TOTAL CONSUMO {{ ciclo.name }}</ion-label>
+          <h1 class="consumo-valor" style="color: #eb445a; font-weight: bold;">
+            {{ ciclo.totalConsumo | number }} m³
+          </h1>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <div class="header-control ion-margin-top">
+      <h2 style="display: inline-block;">Historial General</h2>
+      <ion-button color="success" (click)="exportarExcel()" style="float: right;">
+        <ion-icon name="document-text-outline" slot="start"></ion-icon> EXCEL
+      </ion-button>
+    </div>
+
+    <div class="tabla-scroll" style="overflow-x: auto; clear: both;">
+      <table class="tabla-historial">
+        <thead>
+          <tr>
+            <th>Macro-medidor</th>
+            <th>Lectura</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Evidencia</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of historialMedidores">
+            <td><strong>{{ m.nombre }}</strong></td>
+            <td [style.color]="m.valor_lectura ? 'black' : 'red'">
+              {{ m.valor_lectura ? m.valor_lectura + ' m³' : '--- hace falta' }}
+            </td>
+            <td>{{ m.fecha_lectura ? (m.fecha_lectura | date:'dd/MM/yy') : 'Pendiente' }}</td>
+            <td>
+              <ion-badge [color]="m.valor_lectura ? 'success' : 'danger'">
+                {{ m.estado || 'Faltante' }}
+              </ion-badge>
+            </td>
+            <td>
+              <ion-icon *ngIf="m.foto" name="image-outline" color="warning" size="large"></ion-icon>
+              <span *ngIf="!m.foto">No</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </ion-content>
