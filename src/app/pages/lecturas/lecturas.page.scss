@@ -1,13 +1,13 @@
 // Contenedor principal
 ion-content {
-  --background: #fdfdfd;
+  --background:#547cf5;
 }
 
 // Estilo para el encabezado del medidor seleccionado (Paso 3)
 .header-macro {
   text-align: center;
   padding: 20px 15px;
-  background: white;
+  background: rgb(138, 153, 241);
   border: 2px solid var(--ion-color-danger);
   border-radius: 12px;
   margin-bottom: 20px;
@@ -63,7 +63,7 @@ ion-list {
     --inner-padding-end: 16px;
     margin-bottom: 8px;
     border-radius: 10px;
-    --background: white;
+    --background: rgb(162, 160, 247);
     box-shadow: 0 2px 4px rgba(0,0,0,0.03);
 
     h2 {
@@ -92,6 +92,7 @@ ion-list-header {
   margin-top: 25px !important;
   --border-radius: 10px;
   height: 50px;
+  
 }
 
 // Estilo del botón de cámara

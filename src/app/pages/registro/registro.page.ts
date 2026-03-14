@@ -101,4 +101,6 @@ export class RegistroPage implements OnInit {
       this.cargando = false;
     }
   }
+
+  
 }

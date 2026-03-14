@@ -1,0 +1,21 @@
+// Aplicamos el color azul de fondo al contenido
+ion-content {
+  --background: #547cf5;
+}
+
+// Aseguramos que el toolbar sea del mismo azul que el fondo
+ion-toolbar {
+  --background: #547cf5;
+  --color: white;
+}
+
+// Estilo de tarjeta para datos de pérdidas
+ion-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-top: 20px;
+  
+  ion-card-title {
+    color: #547cf5;
+  }
+}

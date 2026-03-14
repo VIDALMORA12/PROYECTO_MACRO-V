@@ -1,3 +1,8 @@
+
+  
+ion-content {
+    --background: #7573f5; // Un gris claro muy suave para contrastar
+  }
 .chart-box {
   height: 250px;
   margin-bottom: 20px;
@@ -6,36 +11,36 @@
 .divisor {
   margin: 20px 0;
   border: 0;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid #ff0000;
 }
 
 .card-ruta {
   margin: 5px;
   border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(255, 0, 0, 0.966);
   transition: 0.3s;
   &:active { transform: scale(0.95); }
 }
 
 .card-zona {
   border-bottom: 5px solid var(--ion-color-secondary);
-  background: #fdfdfd;
+  background: #5f8fd6;
 }
 
 .tabla-container {
   margin-top: 25px;
   padding: 15px;
-  background: white;
+  background: rgb(181, 180, 235);
   border-radius: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid #ff0000;
   box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
 }
 
 .tabla-excel {
   width: 100%;
   border-collapse: collapse;
-  th { background: #f4f5f8; padding: 10px; border: 1px solid #eee; font-size: 0.8rem; }
-  td { padding: 10px; border: 1px solid #eee; font-size: 0.85rem; }
+  th { background: #f76a65; padding: 10px; border: 1px solid #eee; font-size: 0.8rem; }
+  td { padding: 10px; border: 1px solid #b60d0d; font-size: 0.85rem; }
 }
 
 .error { color: red; font-weight: bold; }
